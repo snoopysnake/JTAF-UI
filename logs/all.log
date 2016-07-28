@@ -1,0 +1,55 @@
+07-15-2016 01:46:56  [INFO ] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:239] - Building model...
+07-15-2016 01:46:57  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:274] - A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 01:46:57  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:106] -    Building model
+07-15-2016 01:46:57  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:111] -       A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 01:46:57  [FATAL] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:280] - Failed to build test model.  See logs for details
+07-15-2016 01:50:54  [INFO ] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:239] - Building model...
+07-15-2016 01:50:55  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:274] - A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 01:50:55  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:106] -    Building model
+07-15-2016 01:50:55  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:111] -       A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 01:50:55  [FATAL] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:280] - Failed to build test model.  See logs for details
+07-15-2016 01:52:31  [INFO ] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:239] - Building model...
+07-15-2016 01:52:31  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:274] - A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 01:52:31  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:106] -    Building model
+07-15-2016 01:52:31  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:111] -       A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 01:52:31  [FATAL] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:280] - Failed to build test model.  See logs for details
+07-15-2016 02:07:23  [INFO ] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:239] - Building model...
+07-15-2016 02:07:23  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:274] - A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 02:07:23  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:106] -    Building model
+07-15-2016 02:07:23  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:111] -       A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 02:07:23  [FATAL] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:280] - Failed to build test model.  See logs for details
+07-15-2016 02:11:09  [INFO ] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:239] - Building model...
+07-15-2016 02:11:09  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:274] - A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 02:11:09  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:106] -    Building model
+07-15-2016 02:11:09  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:111] -       A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 02:11:09  [FATAL] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:280] - Failed to build test model.  See logs for details
+07-15-2016 02:21:35  [INFO ] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:239] - Building model...
+07-15-2016 02:21:35  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:274] - A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 02:21:35  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:106] -    Building model
+07-15-2016 02:21:35  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:111] -       A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 02:21:35  [FATAL] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:280] - Failed to build test model.  See logs for details
+07-15-2016 02:21:41  [INFO ] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:239] - Building model...
+07-15-2016 02:21:42  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:274] - A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 02:21:42  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:106] -    Building model
+07-15-2016 02:21:42  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:111] -       A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 02:21:42  [FATAL] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:280] - Failed to build test model.  See logs for details
+07-15-2016 02:22:39  [INFO ] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:239] - Building model...
+07-15-2016 02:22:40  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:274] - A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 02:22:40  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:106] -    Building model
+07-15-2016 02:22:40  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:111] -       A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 02:22:40  [FATAL] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:280] - Failed to build test model.  See logs for details
+07-15-2016 02:46:21  [INFO ] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:239] - Building model...
+07-15-2016 02:46:21  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:274] - A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 02:46:21  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:106] -    Building model
+07-15-2016 02:46:21  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:111] -       A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 02:46:21  [FATAL] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:280] - Failed to build test model.  See logs for details
+07-15-2016 02:46:55  [INFO ] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:239] - Building model...
+07-15-2016 02:46:55  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:274] - A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 02:46:55  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:106] -    Building model
+07-15-2016 02:46:55  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:111] -       A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 02:46:55  [FATAL] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:280] - Failed to build test model.  See logs for details
+07-15-2016 02:52:06  [INFO ] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:239] - Building model...
+07-15-2016 02:52:07  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:274] - A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 02:52:07  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:106] -    Building model
+07-15-2016 02:52:07  [ERROR] [main] [org.finra.jtaf.core.AutomationEngine] [MessageCollector.java:111] -       A:\My Documents\Programming\JTAF-UI\testscripts
+07-15-2016 02:52:07  [FATAL] [main] [org.finra.jtaf.core.AutomationEngine] [AutomationEngine.java:280] - Failed to build test model.  See logs for details
