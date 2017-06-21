@@ -48,7 +48,7 @@ public class FindExistingProject {
 
     private static ArrayList<Path> getRequiredProjectDirectories() {
         ArrayList<Path> requiredProjectDirs = new ArrayList<>();
-        requiredProjectDirs.add(Paths.get("logs"));
+//        requiredProjectDirs.add(Paths.get("logs"));
         requiredProjectDirs.add(Paths.get("profiles"));
         requiredProjectDirs.add(Paths.get("src"));
         requiredProjectDirs.add(Paths.get("target"));
