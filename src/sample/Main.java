@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -21,8 +22,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 public class Main extends Application {
+    private HashMap<String, Set<String>> testLibraryMap;
     @Override
     public void start(Stage primaryStage) throws Exception{
         Button btn = new Button();
@@ -85,7 +88,7 @@ public class Main extends Application {
 
         final Tab tab2 = new Tab();
         tab2.setText("Test Library");
-        tab2.setContent(createTestLibraryPane(selectedDirectory.getPath()));
+        tab2.setContent(createTestLibraryPane(selectedDirectory.getPath(), tabPane));
 
         final Tab tab3 = new Tab();
         tab3.setText("Commands");
@@ -93,6 +96,22 @@ public class Main extends Application {
 
         final Tab tab4 = new Tab();
         tab4.setText("JTAF Properties");
+
+        //tab 2
+        ScrollPane tab2Content = (ScrollPane) tab2.getContent();
+        ListView<String> testLibraryListView = (ListView<String>) tab2Content.getContent();
+        //tab 3
+        ScrollPane tab3Content = (ScrollPane) tab3.getContent();
+        VBox tab3Box = (VBox) tab3Content.getContent();
+        ButtonBar commandsButtonBar = (ButtonBar) tab3Box.getChildren().get(0);
+        System.out.println(commandsButtonBar.getButtons());
+
+//        Clicking on stuff
+        testLibraryListView.setOnMouseClicked(event -> {
+            String clickedLibrary = testLibraryListView.getSelectionModel().getSelectedItem();
+            System.out.println("Clicked on: " + clickedLibrary);
+            tabPane.getSelectionModel().select(2);
+        });
 
         tabPane.getTabs().addAll(tab1, tab2, tab3, tab4);
         defaultBorderPane.setCenter(tabPane);
@@ -115,7 +134,7 @@ public class Main extends Application {
         return strategiesPane;
     }
 
-    private ScrollPane createTestLibraryPane(String projectPath) throws ParserConfigurationException, IOException, SAXException {
+    private ScrollPane createTestLibraryPane(String projectPath, TabPane tabPane) throws ParserConfigurationException, IOException, SAXException {
         ScrollPane testLibraryPane = new ScrollPane();
         testLibraryPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         testLibraryPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
@@ -136,15 +155,16 @@ public class Main extends Application {
         final ListView<String> testLibraryListView = new ListView<String>();
         testLibraryListView.setItems(FXCollections.observableArrayList(testLibraryCommands));
         testLibraryListView.setPrefHeight(800);
-        testLibraryListView.setOnMouseClicked(event -> {
-            String clickedLibrary = testLibraryListView.getSelectionModel().getSelectedItem();
-            System.out.println("Clicked on: " + clickedLibrary);
-            String testLibraryChild = projectPath + "\\testlibrary\\"+clickedLibrary;
+
+        testLibraryMap = new HashMap<>();
+        for (String testLibraryName : testLibraryCommands) {
+            String testLibraryChild = projectPath + "\\testlibrary\\"+testLibraryName;
             TestLibraryParser testLibraryParser = null;
             try {
                 testLibraryParser = new TestLibraryParser(testLibraryChild);
 //                System.out.println(testLibraryParser.getNames());
                 HashMap<String, HashMap<String, String>> commandChildren = testLibraryParser.getCommandChildren();
+                testLibraryMap.put(testLibraryName, commandChildren.keySet());
 //                System.out.println(commandChildren.keySet());
             } catch (ParserConfigurationException e) {
                 e.printStackTrace();
@@ -153,11 +173,15 @@ public class Main extends Application {
             } catch (SAXException e) {
                 e.printStackTrace();
             }
-            for (int j = 0; j < testLibraryParser.getCommandsSize(); j++) {
+        }
 
-            }
-        });
+        System.out.println(testLibraryMap);
 
+//        testLibraryListView.setOnMouseClicked(event -> {
+//            String clickedLibrary = testLibraryListView.getSelectionModel().getSelectedItem();
+//            System.out.println("Clicked on: " + clickedLibrary);
+//            tabPane.getSelectionModel().select(2);
+//        });
         testLibraryPane.setContent(testLibraryListView);
         return testLibraryPane;
     }
@@ -187,7 +211,17 @@ public class Main extends Application {
             System.out.println("Clicked on: " + clickedCommand);
         });
 
-        commandsPane.setContent(commandsView);
+        ButtonBar buttonBar = new ButtonBar();
+        Button sortBtn1 = new Button();
+        sortBtn1.setText("Sort by library");
+        Button sortBtn2 = new Button();
+        sortBtn2.setText("Sort by all");
+        buttonBar.getButtons().addAll(sortBtn1, sortBtn2);
+
+        VBox commandsBox = new VBox();
+        commandsBox.getChildren().add(buttonBar);
+        commandsBox.getChildren().add(commandsView);
+        commandsPane.setContent(commandsBox);
 
         return commandsPane;
     }
