@@ -19,11 +19,10 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Main extends Application {
-
     @Override
     public void start(Stage primaryStage) throws Exception{
         Button btn = new Button();
@@ -85,11 +84,12 @@ public class Main extends Application {
         tab1.setContent(createStrategiesPane());
 
         final Tab tab2 = new Tab();
-        tab2.setText("Commands");
+        tab2.setText("Test Library");
+        tab2.setContent(createTestLibraryPane(selectedDirectory.getPath()));
 
         final Tab tab3 = new Tab();
-        tab3.setText("Test Library");
-        tab3.setContent(createTestLibraryPane(selectedDirectory.getPath()));
+        tab3.setText("Commands");
+        tab3.setContent(createCommandsPane(selectedDirectory.getPath()));
 
         final Tab tab4 = new Tab();
         tab4.setText("JTAF Properties");
@@ -122,14 +122,15 @@ public class Main extends Application {
         testLibraryPane.setFitToWidth(true);
 
         ArrayList<String> testLibraryCommands = new ArrayList<>();
-        File testLibraryPath = new File(projectPath+"\\src\\main\\resources\\testlibrary");
+        File testLibraryPath = new File(projectPath+"\\testlibrary");
         if (!testLibraryPath.isDirectory()) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setHeaderText("");
             alert.setContentText("Invalid test library directory!");
             alert.showAndWait();
         } else {
-            testLibraryCommands = searchForCommands(testLibraryPath.listFiles(), testLibraryCommands, "");
+            testLibraryCommands = searchForCommands(testLibraryPath.listFiles(), testLibraryCommands, "", ".xml");
+            System.out.println("Searched test library: " + testLibraryCommands);
         }
 
         final ListView<String> testLibraryListView = new ListView<String>();
@@ -138,11 +139,13 @@ public class Main extends Application {
         testLibraryListView.setOnMouseClicked(event -> {
             String clickedLibrary = testLibraryListView.getSelectionModel().getSelectedItem();
             System.out.println("Clicked on: " + clickedLibrary);
-            String testLibraryChild = projectPath + "\\src\\main\\resources\\testlibrary\\"+clickedLibrary;
+            String testLibraryChild = projectPath + "\\testlibrary\\"+clickedLibrary;
             TestLibraryParser testLibraryParser = null;
             try {
                 testLibraryParser = new TestLibraryParser(testLibraryChild);
-                System.out.println(testLibraryParser.getNames());
+//                System.out.println(testLibraryParser.getNames());
+                HashMap<String, HashMap<String, String>> commandChildren = testLibraryParser.getCommandChildren();
+//                System.out.println(commandChildren.keySet());
             } catch (ParserConfigurationException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -159,16 +162,57 @@ public class Main extends Application {
         return testLibraryPane;
     }
 
-    private ArrayList<String> searchForCommands(File[] fileList, ArrayList<String> testLibraryCommands, String directoryName) throws IOException {
+    private ScrollPane createCommandsPane(String projectPath) throws ParserConfigurationException, IOException, SAXException {
+        ScrollPane commandsPane = new ScrollPane();
+        commandsPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        commandsPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        commandsPane.setFitToWidth(true);
+
+        ArrayList<String> totalCommands = new ArrayList<>();
+        File commandsPath = new File(projectPath+"\\src\\main\\java");
+        if (!commandsPath.isDirectory()) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("");
+            alert.setContentText("Invalid command directory!");
+            alert.showAndWait();
+        } else {
+            totalCommands = searchForCommands(commandsPath.listFiles(), totalCommands, "Cmd.java");
+            System.out.println("Searched for commands: " + totalCommands);
+        }
+        final ListView<String> commandsView = new ListView<String>();
+        commandsView.setItems(FXCollections.observableArrayList(totalCommands));
+        commandsView.setPrefHeight(800);
+        commandsView.setOnMouseClicked(event -> {
+            String clickedCommand = commandsView.getSelectionModel().getSelectedItem();
+            System.out.println("Clicked on: " + clickedCommand);
+        });
+
+        commandsPane.setContent(commandsView);
+
+        return commandsPane;
+    }
+
+
+    private ArrayList<String> searchForCommands(File[] fileList, ArrayList<String> arrayList, String directoryName, String typeOfFile) throws IOException {
         for (File file : fileList) {
             if (file.isDirectory()) {
-                testLibraryCommands = searchForCommands(file.listFiles(), testLibraryCommands, directoryName+file.getName()+"\\");
+                arrayList = searchForCommands(file.listFiles(), arrayList, directoryName+file.getName()+"\\", typeOfFile);
             }
-            else if(Files.probeContentType(file.toPath()).equals("text/xml"))
-                testLibraryCommands.add(directoryName+file.getName());
+            else if(file.getName().endsWith(typeOfFile))
+                arrayList.add(directoryName+file.getName());
         }
-        System.out.print("Searched test library: " + testLibraryCommands);
-        return testLibraryCommands;
+        return arrayList;
+    }
+
+    private ArrayList<String> searchForCommands(File[] fileList, ArrayList<String> arrayList, String typeOfFile) throws IOException {
+        for (File file : fileList) {
+            if (file.isDirectory()) {
+                arrayList = searchForCommands(file.listFiles(), arrayList, typeOfFile);
+            }
+            else if(file.getName().endsWith(typeOfFile))
+                arrayList.add(file.getName());
+        }
+        return arrayList;
     }
 
     public static void main(String[] args) {

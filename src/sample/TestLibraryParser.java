@@ -12,6 +12,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by Alex on 7/18/2016.
@@ -19,6 +20,8 @@ import java.util.ArrayList;
 public class TestLibraryParser {
     private DocumentBuilder docBuilder;
     private NodeList commandList;
+    private ArrayList<String> names = new ArrayList<>();
+    private HashMap<String,HashMap<String,String>> commandChildren = new HashMap<>();
 
     public TestLibraryParser(String path) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -38,33 +41,46 @@ public class TestLibraryParser {
             }
         }
         commandList = testLibrary.getChildNodes();
-//        for (int i = 0; i < commandList.getLength(); i++) {
-//            if(commandList.item(i).getNodeType() == commandList.item(i).ELEMENT_NODE) {
-//                Element commandEle = (Element) commandList.item(i);
+        for (int i = 0; i < commandList.getLength(); i++) {
+            if(commandList.item(i).getNodeType() == commandList.item(i).ELEMENT_NODE) {
+                Element commandEle = (Element) commandList.item(i);
+                if(commandEle.getTagName().equals("command")) {
 //                System.out.println(commandEle.getAttribute("name"));
-//                names.add(commandEle.getAttribute("name"));
 //                System.out.println(commandEle.getAttribute("class"));
-//                NodeList commandChildList = commandEle.getChildNodes();
-//                for (int j = 0; j < commandChildList.getLength(); j++) {
-//                    if(commandChildList.item(j).getNodeType() == commandChildList.item(j).ELEMENT_NODE) {
-//                        Element commandChild = (Element) commandChildList.item(j);
-//                        if (commandChild.getTagName().equals("usage")) {
+                    String commandName = commandEle.getAttribute("name");
+                    String commandClass = commandEle.getAttribute("class");
+                    names.add(commandName);
+                    HashMap<String, String> commandMap = new HashMap<>();
+                    commandMap.put("class", commandClass);
+                    commandChildren.put(commandName,commandMap);
+                    NodeList commandChildList = commandEle.getChildNodes();
+                    for (int j = 0; j < commandChildList.getLength(); j++) {
+                        if (commandChildList.item(j).getNodeType() == commandChildList.item(j).ELEMENT_NODE) {
+                            Element commandChild = (Element) commandChildList.item(j);
+                            if (commandChild.getTagName().equals("usage")) {
 //                            System.out.println("Description: "+ commandChild.getTextContent());
-//                        }
-//                        if (commandChild.getNodeName().equals("requiredParameters")) {
-//                            getRequiredParams(commandChild);
-//                        }
-//                        if (commandChild.getNodeName().equals("optionalParameters")) {
-//                            getOptionalParams(commandChild);
-//                        }
-//                    }
-//                }
-//            }
-//        }
+                                commandMap.put("usage", commandChild.getTextContent());
+                                commandChildren.put(commandName,commandMap);
+                            }
+                            if (commandChild.getNodeName().equals("requiredParameters")) {
+                                getRequiredParams(commandName, commandChild);
+                            }
+                            if (commandChild.getNodeName().equals("optionalParameters")) {
+                                getOptionalParams(commandChild);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public NodeList getCommands() throws IOException, SAXException {
         return commandList;
+    }
+
+    public HashMap<String,HashMap<String,String>> getCommandChildren() {
+        return commandChildren;
     }
 
     public int getCommandsSize() {
@@ -72,7 +88,6 @@ public class TestLibraryParser {
     }
 
     public ArrayList<String> getNames() {
-        ArrayList<String> names = new ArrayList<>();
         for (int i = 0; i < commandList.getLength(); i++) {
             if(commandList.item(i).getNodeType() == commandList.item(i).ELEMENT_NODE) {
                 Element commandEle = (Element) commandList.item(i);
@@ -82,13 +97,20 @@ public class TestLibraryParser {
         return names;
     }
 
-    private void getRequiredParams(Element ele) {
+    private void getRequiredParams(String commandName, Element ele) {
         for(int i = 0; i < ele.getChildNodes().getLength(); i++) {
             if(ele.getChildNodes().item(i).getNodeType() == ele.getChildNodes().item(i).ELEMENT_NODE) {
                 Element requiredParam = (Element) ele.getChildNodes().item(i);
-                System.out.println(requiredParam.getNodeName());
-                System.out.println(requiredParam.getAttribute("name"));
-                System.out.println(requiredParam.getTextContent());
+//                System.out.println(requiredParam.getNodeName());
+//                System.out.println(requiredParam.getAttribute("name"));
+//                System.out.println(requiredParam.getTextContent());
+                HashMap<String, String> requiredParamMap = new HashMap<>();
+                requiredParamMap.put("tag", requiredParam.getTagName());
+                commandChildren.put(commandName,requiredParamMap);
+                requiredParamMap.put("name", requiredParam.getAttribute("name"));
+                commandChildren.put(commandName,requiredParamMap);
+                requiredParamMap.put("text", requiredParam.getTextContent());
+                commandChildren.put(commandName,requiredParamMap);
             }
         }
     }
@@ -97,9 +119,9 @@ public class TestLibraryParser {
         for(int i = 0; i < ele.getChildNodes().getLength(); i++) {
             if(ele.getChildNodes().item(i).getNodeType() == ele.getChildNodes().item(i).ELEMENT_NODE) {
                 Element requiredParam = (Element) ele.getChildNodes().item(i);
-                System.out.println(requiredParam.getNodeName());
-                System.out.println(requiredParam.getAttribute("name"));
-                System.out.println(requiredParam.getTextContent());
+//                System.out.println(requiredParam.getNodeName());
+//                System.out.println(requiredParam.getAttribute("name"));
+//                System.out.println(requiredParam.getTextContent());
             }
         }
 
