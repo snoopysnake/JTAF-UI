@@ -22,6 +22,8 @@ public class TestLibraryParser {
     private NodeList commandList;
     private ArrayList<String> names = new ArrayList<>();
     private HashMap<String,HashMap<String,String>> commandChildren = new HashMap<>();
+    private HashMap<String,String> reqParamChildren = new HashMap<>();
+    private HashMap<String,String> optParamChildren = new HashMap<>();
 
     public TestLibraryParser(String path) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -44,15 +46,19 @@ public class TestLibraryParser {
         for (int i = 0; i < commandList.getLength(); i++) {
             if(commandList.item(i).getNodeType() == commandList.item(i).ELEMENT_NODE) {
                 Element commandEle = (Element) commandList.item(i);
-                if(commandEle.getTagName().equals("command")) {
-//                System.out.println(commandEle.getAttribute("name"));
-//                System.out.println(commandEle.getAttribute("class"));
+                if(commandEle.getTagName().equals("command") || commandEle.getTagName().equals("function")) {
                     String commandName = commandEle.getAttribute("name");
                     String commandClass = commandEle.getAttribute("class");
+                    String commandTag = commandEle.getTagName();
                     names.add(commandName);
                     HashMap<String, String> commandMap = new HashMap<>();
-                    commandMap.put("class", commandClass);
-                    commandChildren.put(commandName,commandMap);
+                    commandMap.put("tag", commandTag);
+                    commandChildren.put(commandName, commandMap);
+                    if (!commandClass.equals("")) {
+                        commandMap.put("class", commandClass);
+                        commandChildren.put(commandName, commandMap);
+                    }
+
                     NodeList commandChildList = commandEle.getChildNodes();
                     for (int j = 0; j < commandChildList.getLength(); j++) {
                         if (commandChildList.item(j).getNodeType() == commandChildList.item(j).ELEMENT_NODE) {
@@ -62,11 +68,33 @@ public class TestLibraryParser {
                                 commandMap.put("usage", commandChild.getTextContent());
                                 commandChildren.put(commandName,commandMap);
                             }
-                            if (commandChild.getNodeName().equals("requiredParameters")) {
-                                getRequiredParams(commandName, commandChild);
+                            if (commandChild.getTagName().equals("requiredParameters") || commandChild.getTagName().equals("requiredParameter")) {
+                                commandMap.put(commandChild.getTagName(), commandTag);
+                                commandChildren.put(commandName, commandMap);
+                                for(int k = 0; k < commandChild.getChildNodes().getLength(); k++) {
+                                    if(commandChild.getChildNodes().item(k).getNodeType() == commandChild.getChildNodes().item(k).ELEMENT_NODE) {
+                                        Element requiredParam = (Element) commandChild.getChildNodes().item(k);
+                                        String paramName = requiredParam.getAttribute("name");
+                                        String paramTag = requiredParam.getTagName();
+                                        String paramText = requiredParam.getTextContent();
+                                        String paramInfo = "name: "+paramName+"\n" + "type: " +paramTag + "\n" + "description: " +paramText;
+                                        reqParamChildren.put(commandName, paramInfo);
+                                    }
+                                }
                             }
-                            if (commandChild.getNodeName().equals("optionalParameters")) {
-                                getOptionalParams(commandChild);
+                            if (commandChild.getTagName().equals("optionalParameters") || commandChild.getTagName().equals("optionalParameter")) {
+                                commandMap.put(commandChild.getTagName(), commandTag);
+                                commandChildren.put(commandName, commandMap);
+                                for(int k = 0; k < commandChild.getChildNodes().getLength(); k++) {
+                                    if(commandChild.getChildNodes().item(k).getNodeType() == commandChild.getChildNodes().item(k).ELEMENT_NODE) {
+                                        Element requiredParam = (Element) commandChild.getChildNodes().item(k);
+                                        String paramName = requiredParam.getAttribute("name");
+                                        String paramTag = requiredParam.getTagName();
+                                        String paramText = requiredParam.getTextContent();
+                                        String paramInfo = "name: "+paramName+"\n" + "type: " +paramTag + "\n" + "description: " +paramText;
+                                        optParamChildren.put(commandName, paramInfo);
+                                    }
+                                }
                             }
                         }
                     }
@@ -77,6 +105,14 @@ public class TestLibraryParser {
 
     public NodeList getCommands() throws IOException, SAXException {
         return commandList;
+    }
+
+    public HashMap<String, String> getRequiredParameters() {
+        return reqParamChildren;
+    }
+
+    public HashMap<String, String> getOptionalParameters() {
+        return optParamChildren;
     }
 
     public HashMap<String,HashMap<String,String>> getCommandChildren() {
@@ -97,33 +133,26 @@ public class TestLibraryParser {
         return names;
     }
 
-    private void getRequiredParams(String commandName, Element ele) {
-        for(int i = 0; i < ele.getChildNodes().getLength(); i++) {
-            if(ele.getChildNodes().item(i).getNodeType() == ele.getChildNodes().item(i).ELEMENT_NODE) {
-                Element requiredParam = (Element) ele.getChildNodes().item(i);
-//                System.out.println(requiredParam.getNodeName());
-//                System.out.println(requiredParam.getAttribute("name"));
-//                System.out.println(requiredParam.getTextContent());
-                HashMap<String, String> requiredParamMap = new HashMap<>();
-                requiredParamMap.put("tag", requiredParam.getTagName());
-                commandChildren.put(commandName,requiredParamMap);
-                requiredParamMap.put("name", requiredParam.getAttribute("name"));
-                commandChildren.put(commandName,requiredParamMap);
-                requiredParamMap.put("text", requiredParam.getTextContent());
-                commandChildren.put(commandName,requiredParamMap);
-            }
-        }
-    }
+//    private void getRequiredParams(String commandName, Element ele) {
+//        for(int i = 0; i < ele.getChildNodes().getLength(); i++) {
+//            if(ele.getChildNodes().item(i).getNodeType() == ele.getChildNodes().item(i).ELEMENT_NODE) {
+//                Element requiredParam = (Element) ele.getChildNodes().item(i);
+////                System.out.println(requiredParam.getNodeName());
+////                System.out.println(requiredParam.getAttribute("name"));
+////                System.out.println(requiredParam.getTextContent());
+//            }
+//        }
+//    }
 
-    private void getOptionalParams(Element ele) {
-        for(int i = 0; i < ele.getChildNodes().getLength(); i++) {
-            if(ele.getChildNodes().item(i).getNodeType() == ele.getChildNodes().item(i).ELEMENT_NODE) {
-                Element requiredParam = (Element) ele.getChildNodes().item(i);
-//                System.out.println(requiredParam.getNodeName());
-//                System.out.println(requiredParam.getAttribute("name"));
-//                System.out.println(requiredParam.getTextContent());
-            }
-        }
-
-    }
+//    private void getOptionalParams(Element ele) {
+//        for(int i = 0; i < ele.getChildNodes().getLength(); i++) {
+//            if(ele.getChildNodes().item(i).getNodeType() == ele.getChildNodes().item(i).ELEMENT_NODE) {
+//                Element requiredParam = (Element) ele.getChildNodes().item(i);
+////                System.out.println(requiredParam.getNodeName());
+////                System.out.println(requiredParam.getAttribute("name"));
+////                System.out.println(requiredParam.getTextContent());
+//            }
+//        }
+//
+//    }
 }
