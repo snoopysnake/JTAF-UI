@@ -6,6 +6,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -26,18 +27,61 @@ import java.util.List;
 import java.util.Set;
 
 public class Main extends Application {
-    private final String STARTING_DIR = "A:\\My Documents\\Programming\\JTAF-XCore";
+    private final String STARTING_DIR = "C:\\";
     private String PROJECT_DIR = "";
-    private final String TEST_LIBRARY_DIR = "\\src\\test\\resources\\testlibrary"; //change depending on version
-    private final String COMMANDS_DIR = "\\src\\test\\java";
+    private String TEST_LIBRARY_DIR; //change depending on version
+    private String COMMANDS_DIR;
     private HashMap<String, Set<String>> testLibraryMap;
     ArrayList<String> totalCommands = new ArrayList<>();
     private HashMap<String,List<String>> commandNameLibrary = new HashMap<>();
     @Override
     public void start(Stage primaryStage) throws Exception{
-        new JTAFViewer();
         Button btn = new Button();
         btn.setText("Find Existing Project");
+        Text text = new Text();
+        text.setText("Parameters for a JTAF project: Must contain logs, " +
+                "profiles, src, target, and testscripts folders.");
+        text.setWrappingWidth(280);
+
+        Text toolBarText = new Text("Select version:");
+        ToolBar toolBar = new ToolBar();
+        CheckBox chkBox1 = new CheckBox();
+        chkBox1.setText("JTAF open source");
+        CheckBox chkBox2 = new CheckBox();
+        chkBox2.setText("FINRA JTAF");
+        CheckBox chkBox3 = new CheckBox();
+        chkBox3.setText("custom loadout");
+        toolBar.getItems().addAll(chkBox1, chkBox2, chkBox3);
+        for (Node b : toolBar.getItems()) {
+            CheckBox chkBox = (CheckBox) b;
+            ((CheckBox) b).setOnAction(event -> {
+                if (chkBox.isSelected()) {
+                    System.out.println(chkBox.getText() + " selected!");
+                    if (chkBox.equals(chkBox1)) { //JTAF open source
+                        TEST_LIBRARY_DIR = "\\src\\test\\resources\\testlibrary";
+                        COMMANDS_DIR = "\\src\\test\\java";
+                    }
+                    if (chkBox.equals(chkBox2)) { //FINRA JTAF
+                        TEST_LIBRARY_DIR = "\\testlibrary";
+                        COMMANDS_DIR = "\\src\\main\\java";
+                    }
+                    if (chkBox.equals(chkBox3)) { //custom
+
+                    }
+                    //unselect other checkboxes
+                    for (Node c : toolBar.getItems()) {
+                        CheckBox unselect = (CheckBox) c;
+                        if (!chkBox.equals(unselect)) {
+                            if (unselect.isSelected())
+                                unselect.setSelected(false);
+                        }
+                    }
+                }
+                //load properties
+            });
+        }
+        chkBox1.fire();
+
         btn.setOnAction(event -> {
             DirectoryChooser directoryChooser = new DirectoryChooser();
             File defaultDirectory = new File(STARTING_DIR);
@@ -65,19 +109,20 @@ public class Main extends Application {
                 }
             }
         });
-        Text text = new Text();
-        text.setText("Parameters for a JTAF project: Must contain logs, " +
-                "profiles, src, target, and testscripts folders.");
-        text.setWrappingWidth(280);
 
         //Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         StackPane root = new StackPane();
         StackPane.setAlignment(text, Pos.TOP_CENTER);
         StackPane.setMargin(text, new Insets(30));
+        StackPane.setAlignment(toolBar, Pos.BOTTOM_CENTER);
+        StackPane.setAlignment(toolBarText, Pos.BOTTOM_LEFT);
+        StackPane.setMargin(toolBarText, new Insets(0,0,40,20));
         root.getChildren().add(text);
         root.getChildren().add(btn);
+        root.getChildren().add(toolBarText);
+        root.getChildren().add(toolBar);
         primaryStage.setTitle("JTAF-UI Welcome Screen");
-        primaryStage.setScene(new Scene(root, 300, 275));
+        primaryStage.setScene(new Scene(root, 500, 500));
         primaryStage.show();
     }
 
@@ -139,8 +184,7 @@ public class Main extends Application {
         tabPane.getTabs().addAll(tab1, tab2, tab3, tab4);
         defaultBorderPane.setCenter(tabPane);
         root.getChildren().add(defaultBorderPane);
-        new JTAFViewer();
-//        newStage.show();
+        newStage.show();
 
 //        StackPane projectViewer = new StackPane();
 //        StackPane.setAlignment(toolBar, Pos.TOP_CENTER);
@@ -354,8 +398,8 @@ public class Main extends Application {
     private ListView<String> sortByAll() {
         final ListView<String> commandsView = new ListView<>();
         commandsView.setItems(FXCollections.observableArrayList(totalCommands));
-            commandsView.setPrefHeight(800);
-            commandsView.setOnMouseClicked(event -> {
+        commandsView.setPrefHeight(800);
+        commandsView.setOnMouseClicked(event -> {
             String clickedCommand = commandsView.getSelectionModel().getSelectedItem();
             System.out.println("Clicked on: " + clickedCommand);
         });
