@@ -35,6 +35,7 @@ public class Main extends Application {
     private HashMap<String,List<String>> commandNameLibrary = new HashMap<>();
     @Override
     public void start(Stage primaryStage) throws Exception{
+        new JTAFViewer();
         Button btn = new Button();
         btn.setText("Find Existing Project");
         btn.setOnAction(event -> {
@@ -138,7 +139,8 @@ public class Main extends Application {
         tabPane.getTabs().addAll(tab1, tab2, tab3, tab4);
         defaultBorderPane.setCenter(tabPane);
         root.getChildren().add(defaultBorderPane);
-        newStage.show();
+        new JTAFViewer();
+//        newStage.show();
 
 //        StackPane projectViewer = new StackPane();
 //        StackPane.setAlignment(toolBar, Pos.TOP_CENTER);
