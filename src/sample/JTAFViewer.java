@@ -34,14 +34,17 @@ import java.util.Set;
  * Created by Alex on 6/23/2017.
  */
 public class JTAFViewer extends Stage {
-    private final String STARTING_DIR = "A:\\My Documents\\Programming\\JTAF-XCore";
-    private String PROJECT_DIR = "";
-    private final String TEST_LIBRARY_DIR = "\\src\\test\\resources\\testlibrary"; //change depending on version
-    private final String COMMANDS_DIR = "\\src\\test\\java";
-    private HashMap<String, Set<String>> testLibraryMap;
+    private String PROJECT_DIR;
+    private final String TEST_LIBRARY_DIR; //change depending on version
+    private Node[] centerState = new Node[2]; //update basted on tabs
+    private Node[] directoryState = new Node[2]; //update based on tabs
     ArrayList<String> totalCommands = new ArrayList<>();
+    HashMap<String, ScrollPane> testLibraryMap = new HashMap<>();
 
-    JTAFViewer() throws ParserConfigurationException, SAXException, IOException {
+    JTAFViewer(String projectPath, String libraryPath) throws ParserConfigurationException, SAXException, IOException {
+        this.PROJECT_DIR = projectPath;
+        this.TEST_LIBRARY_DIR = libraryPath;
+
         Group root = new Group();
         Stage jtafStage = new Stage();
         jtafStage.setScene(new Scene(root));
@@ -50,21 +53,128 @@ public class JTAFViewer extends Stage {
         BorderPane defaultBorderPane = new BorderPane();
         defaultBorderPane.setPrefHeight(600);
 
-        ScrollPane sp = new ScrollPane();
-        sp.setPrefHeight(600);
-        sp.setPrefWidth(200);
+        JTAFDirectory directory = new JTAFDirectory(PROJECT_DIR, TEST_LIBRARY_DIR); //add more paths later.
+        ArrayList<String> testLibrary = directory.getTestLibrary();
+        ScrollPane directoryPane = directory.getDirectoryPane();
+        directoryState[0] = directoryPane;
 
-//        ScrollPane viewerLibrary = createLibrary();
-        ScrollPane viewerLibrary = new JTAFLibrary("C:\\Users\\Michael\\Documents\\GitHub\\JTAF-XCore\\src\\test\\resources\\testlibrary\\context.test.commands.xml").getLibraryPane();
+        //directory buttons
+        for (int i = 0; i < testLibrary.size(); i++) {
+            ScrollPane libraryPane = new JTAFLibrary(PROJECT_DIR+TEST_LIBRARY_DIR+"\\"+testLibrary.get(i)).getLibraryPane();
+            testLibraryMap.put(testLibrary.get(i), libraryPane);
+        }
+        ScrollPane emptyLibraryPane = new ScrollPane();
+        centerState[0] = emptyLibraryPane;
+        emptyLibraryPane.setPrefSize(800,600);
+
+        HBox headerBox = new JTAFHeader().getHeaderBox();
+
+        setDirectoryPaneEvents(defaultBorderPane, headerBox, directoryPane);
+        setHeaderBoxEvents(defaultBorderPane, headerBox, directoryPane);
+
         //create other tabs
-        HBox viewerHeader = createViewerHeader(defaultBorderPane, viewerLibrary);
+//        HBox viewerHeader = createViewerHeader(defaultBorderPane, libraryPane);
 
-        defaultBorderPane.setTop(viewerHeader);
-        defaultBorderPane.setCenter(viewerLibrary);
-        defaultBorderPane.setLeft(sp);
+        defaultBorderPane.setTop(headerBox);
+        defaultBorderPane.setCenter(emptyLibraryPane);
+        defaultBorderPane.setLeft(directoryPane);
 
         root.getChildren().add(defaultBorderPane);
         jtafStage.show();
+    }
+
+    public void setDirectoryPaneEvents(BorderPane defaultBorderPane, HBox headerBox, ScrollPane directoryPane) {
+        VBox directoryVBox = (VBox) directoryPane.getContent();
+
+        VBox headerRightHalfBox = (VBox) headerBox.getChildren().get(1);
+        StackPane libraryNamePane = (StackPane) headerRightHalfBox.getChildren().get(1);
+        Label headerLabel = (Label) libraryNamePane.getChildren().get(0);
+
+        for (Node node : directoryVBox.getChildren()) {
+            ToggleButton libraryPathButton = (ToggleButton) node;
+            libraryPathButton.setOnMouseClicked(event -> {
+                System.out.println(libraryPathButton.getText());
+                toggleUnselectAll(libraryPathButton, directoryVBox.getChildren());
+                toggleSelect(libraryPathButton);
+                if(testLibraryMap.containsKey(libraryPathButton.getText())) {
+                    headerLabel.setText(libraryPathButton.getText()); //changes label in header
+                    defaultBorderPane.setCenter(testLibraryMap.get(libraryPathButton.getText()));
+                    centerState[0] = testLibraryMap.get(libraryPathButton.getText());
+                }
+
+                if(!libraryPathButton.isSelected()) {
+                    libraryPathButton.setSelected(true);
+                }
+            });
+        }
+    }
+
+    public void setHeaderBoxEvents(BorderPane defaultBorderPane, HBox headerBox, ScrollPane directoryPane) {
+        VBox headerRightHalfBox = (VBox) headerBox.getChildren().get(1);
+        HBox tabBarBox = (HBox) headerRightHalfBox.getChildren().get(0);
+
+        for (Node node : tabBarBox.getChildren()) {
+            ToggleButton tabButton = (ToggleButton) node;
+            tabButton.setOnMouseClicked(event -> {
+                //unselect everything else
+                toggleUnselectAll(tabButton, tabBarBox.getChildren());
+                //select tabButton
+                toggleSelect(tabButton);
+                if (tabButton.getText().equals("Test Library")) {
+                    defaultBorderPane.setCenter(centerState[0]);
+                    defaultBorderPane.setLeft(directoryState[0]);
+                }
+                if (tabButton.getText().equals("Something1"))
+                    System.out.println("Do something");
+
+                if (!tabButton.isSelected()) {
+                    tabButton.setSelected(true);
+                }
+            });
+        }
+
+//        tabButton1.setOnMouseClicked(event -> {
+//            tabButton2.setSelected(false);
+//            tabButton2.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+//            tabButtonLabel2.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+//
+//            tabButton1.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+//            tabButtonLabel1.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+//            defaultBorderPane.setCenter(tab1);
+//            //keeps selected
+//            if(!tabButton1.isSelected()) {
+//                tabButton1.setSelected(true);
+//            }
+//        });
+//
+//        tabButton2.setOnMouseClicked(event -> {
+//            tabButton1.setSelected(false);
+//            tabButton1.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+//            tabButtonLabel1.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+//
+//            tabButton2.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+//            tabButtonLabel2.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+//            defaultBorderPane.setCenter(new VBox());
+//            //keeps selected
+//            if(!tabButton2.isSelected()) {
+//                tabButton2.setSelected(true);
+//            }
+//        });
+    }
+
+    public void toggleUnselectAll(ToggleButton selectedButton, List<Node> otherButtons) {
+        for (Node node : otherButtons) {
+            ToggleButton unselectedButton = (ToggleButton) node;
+            if (!unselectedButton.equals(selectedButton)) {
+                unselectedButton.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+                unselectedButton.setSelected(false);
+            }
+        }
+    }
+
+    public void toggleSelect(ToggleButton selectedButton) {
+            selectedButton.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+//            tabButtonLabel1.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
     }
 
     public HBox createViewerHeader(BorderPane defaultBorderPane, Node tab1) {

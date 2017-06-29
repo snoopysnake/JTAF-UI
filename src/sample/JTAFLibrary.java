@@ -29,7 +29,7 @@ import java.util.ArrayList;
 public class JTAFLibrary {
     private ScrollPane libraryPane;
 
-    public JTAFLibrary(String path) throws IOException, SAXException, ParserConfigurationException {
+    public JTAFLibrary(String libraryPath) throws IOException, SAXException, ParserConfigurationException {
         libraryPane = new ScrollPane();
         libraryPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         libraryPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
@@ -40,7 +40,7 @@ public class JTAFLibrary {
         libraryBox.setPrefWidth(800);
         libraryBox.setPrefHeight(600);
 
-        LibraryParser libraryParser = new LibraryParser(path);
+        LibraryParser libraryParser = new LibraryParser(libraryPath);
         ArrayList<Command> commands = libraryParser.getCommands();
         ArrayList<Function> functions = libraryParser.getFunctions();
 
