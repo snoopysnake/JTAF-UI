@@ -8,6 +8,7 @@
       <list>
         <option value="$PROJECT_DIR$/../JTAF-XCORE/seedProject/pom.xml" />
         <option value="$PROJECT_DIR$/../JTAF-XCORE/pom.xml" />
+        <option value="$PROJECT_DIR$/../JTAF-XCore/pom.xml" />
       </list>
     </option>
   </component>

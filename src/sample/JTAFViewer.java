@@ -1,21 +1,33 @@
 package sample;
 
+import JTAF.Command;
+import JTAF.Function;
+import JTAF.Parameter;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -29,355 +41,768 @@ public class JTAFViewer extends Stage {
     private HashMap<String, Set<String>> testLibraryMap;
     ArrayList<String> totalCommands = new ArrayList<>();
 
-    JTAFViewer() {
+    JTAFViewer() throws ParserConfigurationException, SAXException, IOException {
         Group root = new Group();
         Stage jtafStage = new Stage();
         jtafStage.setScene(new Scene(root));
         jtafStage.setTitle(PROJECT_DIR);
+
         BorderPane defaultBorderPane = new BorderPane();
-        final TabPane tabPane = new TabPane();
-        tabPane.setPrefSize(1200, 800);
-        tabPane.setSide(Side.TOP);
-        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-        final Tab tab1 = new Tab();
-        tab1.setText("Strategies");
-//        tab1.setContent(createStrategiesPane());
+        defaultBorderPane.setPrefHeight(600);
 
-        final Tab tab2 = new Tab();
-        tab2.setText("Test Library");
-//        tab2.setContent(createTestLibraryPane(tabPane));
+        ScrollPane sp = new ScrollPane();
+        sp.setPrefHeight(600);
+        sp.setPrefWidth(200);
 
-        final Tab tab3 = new Tab();
-        tab3.setText("Commands");
-//        tab3.setContent(createCommandsPane());
+//        ScrollPane viewerLibrary = createLibrary();
+        ScrollPane viewerLibrary = new JTAFLibrary("C:\\Users\\Michael\\Documents\\GitHub\\JTAF-XCore\\src\\test\\resources\\testlibrary\\context.test.commands.xml").getLibraryPane();
+        //create other tabs
+        HBox viewerHeader = createViewerHeader(defaultBorderPane, viewerLibrary);
 
-        final Tab tab4 = new Tab();
-        tab4.setText("JTAF Properties");
-
-//        //tab 2
-//        ScrollPane tab2Content = (ScrollPane) tab2.getContent();
-////        ListView<String> testLibraryListView = (ListView<String>) tab2Content.getContent();
-//        //tab 3
-//        ScrollPane tab3Content = (ScrollPane) tab3.getContent();
-//        VBox tab3Box = (VBox) tab3Content.getContent();
-//        ButtonBar commandsButtonBar = (ButtonBar) tab3Box.getChildren().get(0);
-//        Button btn1= (Button) commandsButtonBar.getButtons().get(0);
-//        btn1.setOnMouseClicked(event -> {
-//            tab3Box.getChildren().remove(1);
-//            tab3Box.getChildren().add(sortByLibrary());
-//            tab3Content.setContent(tab3Box);
-//        });
-//
-//        Button btn2 = (Button) commandsButtonBar.getButtons().get(1);
-//        btn2.setOnMouseClicked(event -> {
-//            tab3Box.getChildren().remove(1);
-//            tab3Box.getChildren().add(sortByAll());
-//            tab3Content.setContent(tab3Box);
-//        });
-//        ComboBox<String> fileTypeBox = (ComboBox<String>) commandsButtonBar.getButtons().get(2);
-////        Clicking on stuff
-////        testLibraryListView.setOnMouseClicked(event -> {
-////            String clickedLibrary = testLibraryListView.getSelectionModel().getSelectedItem();
-////            System.out.println("Clicked on: " + clickedLibrary);
-////        });
-//        fileTypeBox.valueProperty().addListener((ov, before, after) -> {
-//            System.out.println("Clicked: " + after);
-//        });
-        VBox gp = new VBox();
-        gp.setSpacing(10);
-        gp.setPrefWidth(300);
-        final GridPane child = new GridPane();
-        child.setPrefSize(300, 300);
-        child.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
-        StackPane stackPane = new StackPane();
-        Label commandLabel = new Label("Command");
-        commandLabel.setTextFill(Color.WHITE);
-        commandLabel.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-        commandLabel.setFont(new Font("Arial", 30));
-        commandLabel.setPrefWidth(300);
-        stackPane.getChildren().add(commandLabel);
-        Button commandClass = new Button();
-        Image newWindow = new Image(getClass().getResourceAsStream("images\\ic_open_in_new_white_12dp.png"));
-        ImageView img = new ImageView(newWindow);
-        commandClass.setGraphic(img);
-        commandClass.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-
-        DropShadow borderGlow= new DropShadow();
-        borderGlow.setOffsetY(0);
-        borderGlow.setOffsetX(0);
-        borderGlow.setColor(Color.AQUA);
-        borderGlow.setWidth(25);
-        borderGlow.setHeight(25);
-
-        stackPane.getChildren().add(commandClass);
-        StackPane.setAlignment(commandClass, Pos.CENTER_RIGHT);
-        StackPane.setMargin(commandClass, new Insets(0, 30, 0, 0));
-        child.getChildren().add(stackPane);
-        gp.getChildren().add(child);
-        commandClass.setOnMouseEntered(event -> {
-            img.setEffect(borderGlow);
-        });
-        commandClass.setOnMouseExited(event -> {
-            img.setEffect(null);
-        });
-        int i = 0;
-        stackPane.setOnMouseClicked(event -> {
-            if (i == 0) {
-                child.setMaxHeight(0); i = 1;
-            }
-            if (i == 1) {
-                child.setMaxHeight(300); i = 0;
-            }
-        });
-//        child = new GridPane();
-//        child.getChildren().add(new Text("Asdf"));
-//        child.setStyle("-fx-background-color: red;");
-//        child.setPrefSize(300, 300);
-//        gp.getChildren().add(child);
-//        child = new GridPane();
-//        child.getChildren().add(new Text("Asdf"));
-//        child.setStyle("-fx-background-color: red;");
-//        child.setPrefSize(300, 300);
-//        gp.getChildren().add(child);
-//        child = new GridPane();
-//        child.getChildren().add(new Text("Asdf"));
-//        child.setStyle("-fx-background-color: red;");
-//        child.setPrefSize(300, 300);
-//        gp.getChildren().add(child);
-//        child = new GridPane();
-//        child.getChildren().add(new Text("Asdf"));
-//        child.setStyle("-fx-background-color: red;");
-//        child.setPrefSize(300, 300);
-//        gp.getChildren().add(child);
-        ScrollPane sp = new ScrollPane(gp);
-        sp.setPrefHeight(800);
-        tabPane.getTabs().addAll(tab1, tab2, tab3, tab4);
-        defaultBorderPane.setCenter(tabPane);
+        defaultBorderPane.setTop(viewerHeader);
+        defaultBorderPane.setCenter(viewerLibrary);
         defaultBorderPane.setLeft(sp);
+
         root.getChildren().add(defaultBorderPane);
         jtafStage.show();
     }
 
-//    private void createProjectViewer() throws IOException, SAXException, ParserConfigurationException {
+    public HBox createViewerHeader(BorderPane defaultBorderPane, Node tab1) {
+        HBox viewerHeader = new HBox();
+        VBox headerRightHalf = new VBox();
+        HBox headerLeftHalf = new HBox();
+        HBox tabBar = new HBox();
 
-//        StackPane projectViewer = new StackPane();
-//        StackPane.setAlignment(toolBar, Pos.TOP_CENTER);
-//        projectViewer.getChildren().add(toolBar);
-//
-//        Stage projectViewerStage = new Stage();
-//        projectViewerStage.setTitle(selectedDirectory.getName());
-//        projectViewerStage.setScene(new Scene(projectViewer, 1200, 800));
-//        projectViewerStage.show();
+        headerRightHalf.setBackground(new Background(new BackgroundFill(Color.BLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+        headerRightHalf.setPrefWidth(800);
 
-//    }
+        Label logo = new Label("LOGO"); //TODO: change to png
+        logo.setPrefWidth(200); //same as directory/scrollpane
+        logo.setPrefHeight(100);
+        logo.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+        headerLeftHalf.getChildren().add(logo);
 
-//    private Pane createStrategiesPane() {
-//        StackPane strategiesPane = new StackPane();
-//        return strategiesPane;
-//    }
+        //design tab buttons
+        Label tabButtonLabel1 = new Label("Test Library");
+        tabButtonLabel1.setTextFill(Color.WHITE);
+        tabButtonLabel1.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+        tabButtonLabel1.setFont(new Font("Arial", 30));
+        Label tabButtonLabel2 = new Label("Something1");
+        tabButtonLabel2.setTextFill(Color.WHITE);
+        tabButtonLabel2.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+        tabButtonLabel2.setFont(new Font("Arial", 30));
+
+        //add tab buttons
+        ToggleButton tabButton1 = new ToggleButton();
+        tabButton1.setGraphic(tabButtonLabel1);
+        tabButton1.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+        tabButton1.setPrefHeight(50);
+        ToggleButton tabButton2 = new ToggleButton();
+        tabButton2.setGraphic(tabButtonLabel2);
+        tabButton2.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+        tabButton2.setPrefHeight(50);
+
+        tabBar.getChildren().addAll(tabButton1,tabButton2);
+        tabBar.setAlignment(Pos.BOTTOM_LEFT);
+
+//        StackPane libraryName = createBoxHeader("libraryName",30, Color.RED); //Important
+        headerRightHalf.getChildren().add(tabBar);
+//        headerRightHalf.getChildren().add(libraryName);
+        headerRightHalf.setAlignment(Pos.BOTTOM_LEFT);
+
+        viewerHeader.getChildren().addAll(headerLeftHalf,headerRightHalf);
+
+        //tab events
+        tabButton1.setOnMouseClicked(event -> {
+            tabButton2.setSelected(false);
+            tabButton2.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+            tabButtonLabel2.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+
+            tabButton1.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+            tabButtonLabel1.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+            defaultBorderPane.setCenter(tab1);
+            //keeps selected
+            if(!tabButton1.isSelected()) {
+                tabButton1.setSelected(true);
+            }
+        });
+
+        tabButton2.setOnMouseClicked(event -> {
+            tabButton1.setSelected(false);
+            tabButton1.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+            tabButtonLabel1.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+
+            tabButton2.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+            tabButtonLabel2.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
+            defaultBorderPane.setCenter(new VBox());
+            //keeps selected
+            if(!tabButton2.isSelected()) {
+                tabButton2.setSelected(true);
+            }
+        });
+
+        return viewerHeader;
+    }
+
+//    public ScrollPane createLibrary() throws IOException, SAXException, ParserConfigurationException {
+//        //ScrollePane -> VBox -> VBox -> GridPane
+//        ScrollPane libraryPane = new ScrollPane();
+//        libraryPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+//        libraryPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+//        VBox libraryBox = new VBox();
+//        VBox commandBox = new VBox();
+//        VBox functionBox = new VBox();
 //
-//    private ScrollPane createTestLibraryPane(TabPane tabPane) throws ParserConfigurationException, IOException, SAXException {
-//        ScrollPane testLibraryPane = new ScrollPane();
-//        testLibraryPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-//        testLibraryPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-//        testLibraryPane.setFitToWidth(true);
+//        libraryBox.setPrefWidth(800);
+//        libraryBox.setPrefHeight(600);
 //
-//        ArrayList<String> testLibraryCommands = new ArrayList<>();
-//        File testLibraryPath = new File(PROJECT_DIR+TEST_LIBRARY_DIR);
-//        if (!testLibraryPath.isDirectory()) {
-//            Alert alert = new Alert(Alert.AlertType.ERROR);
-//            alert.setHeaderText("");
-//            alert.setContentText("Invalid test library directory!");
-//            alert.showAndWait();
-//        } else {
-//            testLibraryCommands = searchForCommands(testLibraryPath.listFiles(), testLibraryCommands, "", ".xml");
-//            System.out.println("Searched test library: " + testLibraryCommands);
-//        }
+//        LibraryParser libraryParser = new LibraryParser("C:\\Users\\Michael\\Documents\\GitHub\\JTAF-XCore\\src\\test\\resources\\testlibrary\\context.test.commands.xml");
+//        ArrayList<Command> commands = libraryParser.getCommands();
+//        ArrayList<Function> functions = libraryParser.getFunctions();
 //
-////        final ListView<String> testLibraryListView = new ListView<>();
-////        testLibraryListView.setItems(FXCollections.observableArrayList(testLibraryCommands));
-////        testLibraryListView.setPrefHeight(800);
+//        if(!commands.isEmpty()) {
+//            StackPane commandBoxHeader = createBoxHeader("COMMANDS",25,Color.DARKBLUE);
+//            commandBox.getChildren().add(commandBoxHeader);
+//            for (int i = 0; i < commands.size(); i++) {
+//                Command command = commands.get(i);
+//                StackPane commandHeader = createLibraryHeader(command.getCommandName());
+//                GridPane commandGridPane = createCommandGridPane(command);
+//                commandMouseEffects(commandHeader, commandGridPane, command);
+//                commandBox.getChildren().add(commandHeader);
+//                commandBox.getChildren().add(commandGridPane);
+//            }
 //
-//        Accordion testLibraryAccordion = new Accordion();
-//        testLibraryMap = new HashMap<>();
-//        for (String testLibraryName : testLibraryCommands) {
-//            String testLibraryChild = PROJECT_DIR+TEST_LIBRARY_DIR+"\\"+testLibraryName;
-//            TestLibraryParser testLibraryParser = null;
-//            try {
-//                testLibraryParser = new TestLibraryParser(testLibraryChild);
-//                HashMap<String, HashMap<String, String>> commandChildren = testLibraryParser.getCommandChildren();
-////                commandNameLibrary.put(testLibraryName, commandChildren.keySet());
-//                testLibraryMap.put(testLibraryName, commandChildren.keySet()); //??
-//                ArrayList<String> commandClassList = new ArrayList<>();
-//
-//                //iterates through each command in each test library
-//                final ListView<String> commandListView = new ListView<>();
-//                for (String commandName : commandChildren.keySet()) {
-//                    HashMap<String, String> commandData = commandChildren.get(commandName);
-//                    String tagName = commandData.get("tag").toUpperCase();
-//                    commandListView.getItems().add(tagName);
-//                    String className = "";
-//                    if(commandData.get("class") != null) {
-//                        className = " (" + commandData.get("class") + ")";
-//                        commandClassList.add(commandData.get("class"));
-//                    }
-//                    commandListView.getItems().add("name: " + commandName+className);
-//
-//                    for (String c : commandData.keySet()) {
-//                        if (!c.equals("class") && !c.equals("tag") && !c.equals("") &&
-//                                !c.contains("optionalParameter") && !c.contains("requiredParameter"))
-//                            commandListView.getItems().add(c + ": " + commandData.get(c));
-//                    }
-//                    if(!testLibraryParser.getRequiredParameters().isEmpty()) {
-//                        commandListView.getItems().add("REQUIRED PARAMETER(S):\n");
-//                        commandListView.getItems().add(testLibraryParser.getRequiredParameters().get(commandName));
-//                    }
-//                    if (!testLibraryParser.getOptionalParameters().isEmpty()) {
-//                        commandListView.getItems().add("OPTIONAL PARAMETER(S):\n");
-//                        for (String param : testLibraryParser.getOptionalParameters().keySet()) {
-//                            commandListView.getItems().add(param);
+//            //commands header
+//            commandBoxHeader.setOnMouseClicked(event -> {
+//                int sum = 0;
+//                for (Node node : commandBox.getChildren()) {
+//                    if (node.getClass().equals(GridPane.class)) {
+//                        if (node.isVisible() || node.isManaged()) {
+//                            sum++;
 //                        }
 //                    }
-//                    commandListView.getItems().add("");
 //                }
-//                commandNameLibrary.put(testLibraryName, commandClassList);
-//
-//                TitledPane testLibraryTP = new TitledPane(testLibraryName,commandListView);
-//                testLibraryAccordion.getPanes().add(testLibraryTP);
-////                System.out.println(commandChildren.keySet());
-//            } catch (ParserConfigurationException e) {
-//                e.printStackTrace();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            } catch (SAXException e) {
-//                e.printStackTrace();
-//            }
+//                if (sum == 0)
+//                    maximizeCommands(commandBox);
+//                else minimizeCommands(commandBox);
+//            });
 //        }
+//        if(!functions.isEmpty()) {
+//            StackPane functionBoxHeader = createBoxHeader("FUNCTIONS",25,Color.DARKBLUE);
+//            functionBox.getChildren().add(functionBoxHeader);
+//            for (int i = 0; i < libraryParser.getFunctions().size(); i++) {
+//                Function function = functions.get(i);
+//                StackPane functionHeader = createLibraryHeader(function.getFunctionName());
+//                GridPane functionGridPane = createFunctionGridPane(function);
+//                functionMouseEffects(functionHeader, functionGridPane, function);
+//                functionBox.getChildren().add(functionHeader);
+//                functionBox.getChildren().add(functionGridPane);
+//            }
 //
-////        testLibraryListView.setOnMouseClicked(event -> {
-////            String clickedLibrary = testLibraryListView.getSelectionModel().getSelectedItem();
-////            System.out.println("Clicked on: " + clickedLibrary);
-////            tabPane.getSelectionModel().select(2);
-////        });
-//        testLibraryPane.setContent(testLibraryAccordion);
-//        return testLibraryPane;
-//    }
-//
-//    private ScrollPane createCommandsPane() throws ParserConfigurationException, IOException, SAXException {
-//        ScrollPane commandsPane = new ScrollPane();
-//        commandsPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-//        commandsPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-//        commandsPane.setFitToWidth(true);
-//
-//        File commandsPath = new File(PROJECT_DIR+COMMANDS_DIR);
-//        if (!commandsPath.isDirectory()) {
-//            Alert alert = new Alert(Alert.AlertType.ERROR);
-//            alert.setHeaderText("");
-//            alert.setContentText("Invalid command directory!");
-//            alert.showAndWait();
-//        } else {
-//            totalCommands = searchForCommands(commandsPath.listFiles(), totalCommands, ".java");
-//            ArrayList<String> newTotalCommands = new ArrayList<>();
-//            for(String command : totalCommands) {
-//                if (command.toLowerCase().endsWith("cmd.java") || command.toLowerCase().endsWith("command.java")) { //need to improve
-//                    newTotalCommands.add(command.replace(".java",""));
+//            //functions header
+//            functionBoxHeader.setOnMouseClicked(event -> {
+//                int sum = 0;
+//                for (Node node : functionBox.getChildren()) {
+//                    if (node.getClass().equals(GridPane.class)) {
+//                        if (node.isVisible() || node.isManaged()) {
+//                            sum++;
+//                        }
+//                    }
 //                }
-//            }
-//            totalCommands = newTotalCommands;
-//            System.out.println("Searched for commands: " + totalCommands);
+//                if (sum == 0)
+//                    maximizeCommands(functionBox);
+//                else minimizeCommands(functionBox);
+//            });
 //        }
-//        ListView<String> commandsView = sortByAll();
 //
-//        ButtonBar buttonBar = new ButtonBar();
-//        Button sortBtn1 = new Button();
-//        sortBtn1.setText("Sort by library");
-//        Button sortBtn2 = new Button();
-//        sortBtn2.setText("Sort by all");
-//        ComboBox<String> fileTypeBox = new ComboBox<>();
-//        fileTypeBox.setItems(FXCollections.observableArrayList("class name", "test library name"));
-//        fileTypeBox.setEditable(false);
-//        fileTypeBox.setValue(fileTypeBox.getItems().get(0));
-//        buttonBar.getButtons().addAll(sortBtn1, sortBtn2, fileTypeBox);
-//
-//        VBox commandsBox = new VBox();
-//        commandsBox.getChildren().add(buttonBar);
-//        commandsBox.getChildren().add(commandsView);
-//        commandsPane.setContent(commandsBox);
-//
-//        return commandsPane;
-//    }
-
-
-//    private ArrayList<String> searchForCommands(File[] fileList, ArrayList<String> arrayList, String directoryName, String typeOfFile) throws IOException {
-//        for (File file : fileList) {
-//            if (file.isDirectory()) {
-//                arrayList = searchForCommands(file.listFiles(), arrayList, directoryName+file.getName()+"\\", typeOfFile);
-//            }
-//            else if(file.getName().endsWith(typeOfFile))
-//                arrayList.add(directoryName+file.getName());
-//        }
-//        return arrayList;
+//        libraryBox.getChildren().add(commandBox);
+//        libraryBox.getChildren().add(functionBox);
+//        libraryPane.setContent(libraryBox);
+//        return libraryPane;
 //    }
 //
-//    //does not include extra repositories
-//    private ArrayList<String> searchForCommands(File[] fileList, ArrayList<String> arrayList, String typeOfFile) throws IOException {
-//        for (File file : fileList) {
-//            if (file.isDirectory()) {
-//                arrayList = searchForCommands(file.listFiles(), arrayList, typeOfFile);
-//            }
-//            else if(file.getName().endsWith(typeOfFile))
-//                arrayList.add(file.getName());
-//        }
-//        return arrayList;
+//    public StackPane createBoxHeader(String name, int fontSize, Color color) {
+//        StackPane boxHeader = new StackPane();
+//
+//        Label boxHeaderLabel = new Label(name);
+//        boxHeaderLabel.setTextFill(Color.WHITE);
+//        boxHeaderLabel.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY))); //make color coded
+//        boxHeaderLabel.setFont(new Font("Arial", fontSize));
+//        boxHeaderLabel.setPrefWidth(800);
+//        boxHeader.getChildren().add(boxHeaderLabel);
+//        return boxHeader;
 //    }
-
-
-//    private ListView<String> sortByLibrary() {
-//        final ListView<String> commandsView = new ListView<>();
 //
-//        ArrayList<String> testLibraryCmds = new ArrayList<>();
+//    public StackPane createLibraryHeader(String name) {
+//        StackPane libraryHeader = new StackPane();
+//        libraryHeader.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 //
-//        //all the commands searched
-//        for (String lib : commandNameLibrary.keySet()) {
-//            commandsView.getItems().add("TEST LIBRARY NAME: " + lib);
-//            for (String cl : commandNameLibrary.get(lib)) {
-//                String[] clSplit = cl.split("\\.");
-//                String fileName = clSplit[clSplit.length-1];
-//                testLibraryCmds.add(fileName);
-//                String status = " (NOT FOUND IN SOURCE)";
+//        Label libraryHeaderLabel = new Label(name);
+//        libraryHeaderLabel.setTextFill(Color.WHITE);
+//        libraryHeaderLabel.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY))); //make color coded
+//        libraryHeaderLabel.setFont(new Font("Arial", 20));
+//        libraryHeaderLabel.setPrefWidth(800);
+//        libraryHeader.getChildren().add(libraryHeaderLabel);
 //
-//                //missing command or extra test library command
-//                if (totalCommands.contains(fileName)) {
-//                    System.out.println(fileName + " found!");
-//                    status = "";
+//        Button classWindowButton = new Button();
+//        Image img = new Image(getClass().getResourceAsStream("images\\ic_open_in_new_white_12dp.png"));
+//        ImageView imgView = new ImageView(img);
+//        classWindowButton.setGraphic(imgView);
+//        classWindowButton.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+//
+//        libraryHeader.getChildren().add(classWindowButton);
+//        StackPane.setAlignment(classWindowButton, Pos.CENTER_RIGHT);
+//        StackPane.setMargin(classWindowButton, new Insets(0, 30, 0, 0));
+//
+//        return libraryHeader;
+//    }
+//
+//    public GridPane createCommandGridPane(Command command) {
+//        final GridPane commandGridPane = new GridPane();
+//        commandGridPane.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+//        ColumnConstraints col1 = new ColumnConstraints();
+//        col1.setPrefWidth(300);
+//        ColumnConstraints col2 = new ColumnConstraints();
+//        col2.setPrefWidth(500);
+//        commandGridPane.getColumnConstraints().addAll(col1,col2);
+//
+//        int row = 0;
+//        int height = 0;
+//        StackPane classPane = new StackPane();
+//        classPane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+//        classPane.getChildren().add(new Text("Class"));
+//        classPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//        commandGridPane.add(classPane,0,row);
+//        StackPane classPaneInfo = new StackPane();
+//        classPaneInfo.getChildren().add(new Text(command.getCommandClass()));
+//        classPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//        commandGridPane.add(classPaneInfo,1,row);
+//        row++;
+//        RowConstraints rowConstraint = new RowConstraints(50);
+//        commandGridPane.getRowConstraints().add(rowConstraint);
+//        height+=rowConstraint.getMaxHeight();
+//        if (command.hasCommandUsage()) {
+//            StackPane usagePane = new StackPane();
+//            usagePane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+//            usagePane.getChildren().add(new Text("Usage"));
+//            usagePane.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//            commandGridPane.add(usagePane, 0, row);
+//            StackPane usagePaneInfo = new StackPane();
+//            usagePaneInfo.getChildren().add(new Text(command.getCommandUsage().trim())); //should make height variable
+//            usagePaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//            commandGridPane.add(usagePaneInfo, 1, row);
+//            row++;
+//            if (usagePane.getMaxHeight() > 50)
+//                rowConstraint = new RowConstraints(usagePane.getMaxHeight());
+//            commandGridPane.getRowConstraints().add(rowConstraint);
+//            height+=rowConstraint.getMaxHeight();
+//        }
+//        if (command.hasRequiredParameters()) {
+//            StackPane requiredParamPane = new StackPane();
+//            requiredParamPane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+//            requiredParamPane.getChildren().add(new Text("Required Parameters"));
+//            requiredParamPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//            commandGridPane.add(requiredParamPane, 0, row);
+//            StackPane requiredParamPaneInfo = new StackPane();
+//            requiredParamPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//            commandGridPane.add(requiredParamPaneInfo, 1, row);
+//            row++;
+//            rowConstraint = new RowConstraints(50);
+//            commandGridPane.getRowConstraints().add(rowConstraint);
+//            height+=rowConstraint.getMaxHeight();
+//
+//            for(int i = 0; i < command.getRequiredParameters().size() * 3; i++) {
+//                String requiredParamKey = "";
+//                String requiredParamData = "";
+//                int commandIndex = i/3;
+//                if (i % 3 == 0) {
+//                    requiredParamKey = "Name";
+//                    requiredParamData = command.getRequiredParameters().get(commandIndex).getName();
 //                }
-//                commandsView.getItems().add(fileName+status);
+//                if (i % 3 == 1) {
+//                    requiredParamKey = "Tag";
+//                    requiredParamData = command.getRequiredParameters().get(commandIndex).getTag();
+//                }
+//                if (i % 3 == 2) {
+//                    requiredParamKey = "Text";
+//                    requiredParamData = command.getRequiredParameters().get(commandIndex).getText();
+//                }
+//                StackPane requiredParamChildPane = new StackPane();
+//                requiredParamChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+//                requiredParamChildPane.getChildren().add(new Text(requiredParamKey));
+//                requiredParamChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//                commandGridPane.add(requiredParamChildPane, 0, row);
+//                StackPane requiredParamChildPaneInfo = new StackPane();
+//                requiredParamChildPaneInfo.getChildren().add(new Text(requiredParamData));
+//                requiredParamChildPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//                commandGridPane.add(requiredParamChildPaneInfo, 1, row);
+//                row++;
+//                double rowHeight = requiredParamChildPaneInfo.getHeight();
+//                if (rowHeight < 25)
+//                    rowHeight = 25;
+//                rowConstraint = new RowConstraints(rowHeight);
+//                commandGridPane.getRowConstraints().add(rowConstraint);
+//                height+=rowConstraint.getMaxHeight();
 //            }
 //        }
-//        commandsView.getItems().add("");
-//        commandsView.getItems().add("NOT FOUND IN TEST LIBRARY:");
-//        //extra command or missing test library command
-//        for (String searched : totalCommands) {
-//            if (!testLibraryCmds.contains(searched)) {
-//                commandsView.getItems().add(searched);
+//        if (command.hasOptionalParameters()) {
+//            StackPane optionalParamPane = new StackPane();
+//            optionalParamPane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+//            optionalParamPane.getChildren().add(new Text("Optional Parameters"));
+//            optionalParamPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//            commandGridPane.add(optionalParamPane, 0, row);
+//            StackPane optionalParamPaneInfo = new StackPane();
+//            optionalParamPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//            commandGridPane.add(optionalParamPaneInfo, 1, row);
+//            row++;
+//            rowConstraint = new RowConstraints(50);
+//            commandGridPane.getRowConstraints().add(rowConstraint);
+//            height+=rowConstraint.getMaxHeight();
+//
+//            for(int i = 0; i < command.getOptionalParameters().size() * 3; i++) {
+//                String optionalParamKey = "";
+//                String optionalParamData = "";
+//                int commandIndex = i/3;
+//                if (i % 3 == 0) {
+//                    optionalParamKey = "Name";
+//                    optionalParamData = command.getOptionalParameters().get(commandIndex).getName();
+//                }
+//                if (i % 3 == 1) {
+//                    optionalParamKey = "Tag";
+//                    optionalParamData = command.getOptionalParameters().get(commandIndex).getTag();
+//                }
+//                if (i % 3 == 2) {
+//                    optionalParamKey = "Text";
+//                    optionalParamData = command.getOptionalParameters().get(commandIndex).getText();
+//                }
+//                StackPane optionalParamChildPane = new StackPane();
+//                optionalParamChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+//                optionalParamChildPane.getChildren().add(new Text(optionalParamKey));
+//                optionalParamChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//                commandGridPane.add(optionalParamChildPane, 0, row);
+//                StackPane optionalParamChildPaneInfo = new StackPane();
+//                optionalParamChildPaneInfo.getChildren().add(new Text(optionalParamData));
+//                optionalParamChildPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//                commandGridPane.add(optionalParamChildPaneInfo, 1, row);
+//                row++;
+//                double rowHeight = optionalParamPaneInfo.getHeight();
+//                if (rowHeight < 25)
+//                    rowHeight = 25;
+//                rowConstraint = new RowConstraints(rowHeight);
+//                commandGridPane.getRowConstraints().add(rowConstraint);
+//                height+=rowConstraint.getMaxHeight();
 //            }
 //        }
-//        commandsView.setPrefHeight(800);
-//        commandsView.setOnMouseClicked(event -> {
-//            String clickedCommand = commandsView.getSelectionModel().getSelectedItem();
-//            System.out.println("Clicked on: " + clickedCommand);
+//        if (command.hasCommandResults()) {
+//            StackPane resultsPane = new StackPane();
+//            resultsPane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+//            resultsPane.getChildren().add(new Text("Produces"));
+//            resultsPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//            commandGridPane.add(resultsPane, 0, row);
+//            StackPane resultPanesInfo = new StackPane();
+//            resultPanesInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//            commandGridPane.add(resultPanesInfo, 1, row);
+//            row++;
+//            rowConstraint = new RowConstraints(50);
+//            commandGridPane.getRowConstraints().add(rowConstraint);
+//            height+=rowConstraint.getMaxHeight();
+//
+//            for(int i = 0; i < command.getCommandResults().size() * 3; i++) {
+//                String resultsParamKey = "";
+//                String resultsParamData = "";
+//                int commandIndex = i/3;
+//                if (i % 3 == 0) {
+//                    resultsParamKey = "Name";
+//                    resultsParamData = command.getCommandResults().get(commandIndex).getName();
+//                }
+//                if (i % 3 == 1) {
+//                    resultsParamKey = "Tag";
+//                    resultsParamData = command.getCommandResults().get(commandIndex).getTag();
+//                }
+//                if (i % 3 == 2) {
+//                    resultsParamKey = "Text";
+//                    resultsParamData = command.getCommandResults().get(commandIndex).getText();
+//                }
+//                StackPane resultsChildPane = new StackPane();
+//                resultsChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+//                resultsChildPane.getChildren().add(new Text(resultsParamKey));
+//                resultsChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//                commandGridPane.add(resultsChildPane, 0, row);
+//                StackPane resultsChildPaneInfo = new StackPane();
+//                resultsChildPaneInfo.getChildren().add(new Text(resultsParamData));
+//                resultsChildPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//                commandGridPane.add(resultsChildPaneInfo, 1, row);
+//                row++;
+//                double rowHeight = resultsChildPaneInfo.getHeight();
+//                if (rowHeight < 25)
+//                    rowHeight = 25;
+//                rowConstraint = new RowConstraints(rowHeight);
+//                commandGridPane.getRowConstraints().add(rowConstraint);
+//                height+=rowConstraint.getMaxHeight();
+//            }
+//        }
+//        commandGridPane.setAlignment(Pos.CENTER);
+//        commandGridPane.setPrefSize(800, height);
+//        commandGridPane.setVisible(false);
+//        commandGridPane.setManaged(false);
+//
+////        for (int i = 0; i < commandGridPane.getChildren().size()/2; i++) {
+////            RowConstraints rows = new RowConstraints(50);
+////            commandGridPane.getRowConstraints().add(rows);
+////        }
+//
+//        return commandGridPane;
+//    }
+//
+//    public void commandMouseEffects(StackPane commandHeader, GridPane commandGridPane, Command command) {
+//        DropShadow glow = new DropShadow();
+//        glow.setOffsetY(0);
+//        glow.setOffsetX(0);
+//        glow.setColor(Color.AQUA);
+//        glow.setWidth(25);
+//        glow.setHeight(25);
+//
+//        Label commandLabel = (Label) commandHeader.getChildren().get(0);
+//        Button classWindowButton = (Button) commandHeader.getChildren().get(1);
+//        ImageView imgView = (ImageView) classWindowButton.getGraphic();
+//
+//        classWindowButton.setOnMouseEntered(event -> {
+//            imgView.setEffect(glow);
 //        });
-//        return commandsView;
-//    }
-
-//    private ListView<String> sortByAll() {
-//        final ListView<String> commandsView = new ListView<>();
-//        commandsView.setItems(FXCollections.observableArrayList(totalCommands));
-//        commandsView.setPrefHeight(800);
-//        commandsView.setOnMouseClicked(event -> {
-//            String clickedCommand = commandsView.getSelectionModel().getSelectedItem();
-//            System.out.println("Clicked on: " + clickedCommand);
+//        classWindowButton.setOnMouseExited(event -> {
+//            imgView.setEffect(null);
 //        });
-//        return commandsView;
-    }
+//
+//        //command in new window
+//        classWindowButton.setOnMouseClicked(event -> {
+//            Stage commandWindow = new Stage();
+//            VBox windowedVBox = new VBox();
+//            StackPane windowedCommandHeader = createBoxHeader(command.getCommandName(),25, Color.DARKBLUE);
+//            GridPane windowedCommand = createCommandGridPane(command);
+//            windowedCommand.setVisible(true);
+//            windowedCommand.setManaged(true);
+//            windowedVBox.getChildren().addAll(windowedCommandHeader, windowedCommand);
+//            commandWindow.setScene(new Scene(windowedVBox,300,windowedCommand.getPrefHeight()));
+//            commandWindow.show();
+//        });
+//
+//        commandHeader.setOnMouseEntered(event -> {
+//            commandHeader.setEffect(glow);
+//            commandHeader.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+//            commandLabel.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+//            classWindowButton.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+//            }
+//        );
+//        commandHeader.setOnMouseExited(event -> {
+//            commandHeader.setEffect(null);
+//            commandHeader.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+//            commandLabel.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+//            classWindowButton.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+//            }
+//        );
+//
+//        commandHeader.setOnMouseClicked(event -> {
+//            if (commandGridPane.isVisible()) {
+//                commandGridPane.setVisible(false);
+//                commandGridPane.setManaged(false);
+//            } else {
+//                commandGridPane.setVisible(true);
+//                commandGridPane.setManaged(true);
+//            }
+//
+//        });
+//    }
+//
+//    public void minimizeCommands(VBox commandBox) {
+//        for (Node node : commandBox.getChildren()) {
+//            if (node.getClass().equals(GridPane.class)) {
+//                node.setVisible(false);
+//                node.setManaged(false);
+//            }
+//        }
+//    }
+//
+//    public void maximizeCommands(VBox commandBox) {
+//        for (Node node : commandBox.getChildren()) {
+//            if (node.getClass().equals(GridPane.class)) {
+//                node.setVisible(true);
+//                node.setManaged(true);
+//            }
+//        }
+//    }
+//
+//    public GridPane createFunctionGridPane(Function function) {
+//        final GridPane functionGridPane = new GridPane();
+//        functionGridPane.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+//        ColumnConstraints col1 = new ColumnConstraints();
+//        col1.setPrefWidth(300);
+//        ColumnConstraints col2 = new ColumnConstraints();
+//        col2.setPrefWidth(500);
+//        functionGridPane.getColumnConstraints().addAll(col1,col2);
+//
+//        int row = 0;
+//        int height = 0;
+//        RowConstraints rowConstraint = new RowConstraints(50);
+//        if (function.hasFunctionUsage()) {
+//            StackPane usagePane = new StackPane();
+//            usagePane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+//            usagePane.getChildren().add(new Text("Usage"));
+//            usagePane.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//            functionGridPane.add(usagePane, 0, row);
+//            StackPane usagePaneInfo = new StackPane();
+//            usagePaneInfo.getChildren().add(new Text(function.getFunctionUsage().trim())); //should make height variable
+//            usagePaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//            functionGridPane.add(usagePaneInfo, 1, row);
+//            row++;
+//            if (usagePane.getMaxHeight() > 50)
+//                rowConstraint = new RowConstraints(usagePane.getMaxHeight());
+//            functionGridPane.getRowConstraints().add(rowConstraint);
+//            height+=rowConstraint.getMaxHeight();
+//        }
+//        if (function.hasRequiredParameters()) {
+//            StackPane requiredParamPane = new StackPane();
+//            requiredParamPane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+//            requiredParamPane.getChildren().add(new Text("Required Parameters"));
+//            requiredParamPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//            functionGridPane.add(requiredParamPane, 0, row);
+//            StackPane requiredParamPaneInfo = new StackPane();
+//            requiredParamPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//            functionGridPane.add(requiredParamPaneInfo, 1, row);
+//            row++;
+//            rowConstraint = new RowConstraints(50);
+//            functionGridPane.getRowConstraints().add(rowConstraint);
+//            height+=rowConstraint.getMaxHeight();
+//
+//            for(int i = 0; i < function.getRequiredParameters().size() * 3; i++) {
+//                String requiredParamKey = "";
+//                String requiredParamData = "";
+//                int functionIndex = i/3;
+//                if (i % 3 == 0) {
+//                    requiredParamKey = "Name";
+//                    requiredParamData = function.getRequiredParameters().get(functionIndex).getName();
+//                }
+//                if (i % 3 == 1) {
+//                    requiredParamKey = "Tag";
+//                    requiredParamData = function.getRequiredParameters().get(functionIndex).getTag();
+//                }
+//                if (i % 3 == 2) {
+//                    requiredParamKey = "Text";
+//                    requiredParamData = function.getRequiredParameters().get(functionIndex).getText();
+//                }
+//                StackPane requiredParamChildPane = new StackPane();
+//                requiredParamChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+//                requiredParamChildPane.getChildren().add(new Text(requiredParamKey));
+//                requiredParamChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//                functionGridPane.add(requiredParamChildPane, 0, row);
+//                StackPane requiredParamChildPaneInfo = new StackPane();
+//                requiredParamChildPaneInfo.getChildren().add(new Text(requiredParamData));
+//                requiredParamChildPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//                functionGridPane.add(requiredParamChildPaneInfo, 1, row);
+//                row++;
+//                double rowHeight = requiredParamChildPaneInfo.getHeight();
+//                if (rowHeight < 25)
+//                    rowHeight = 25;
+//                rowConstraint = new RowConstraints(rowHeight);
+//                functionGridPane.getRowConstraints().add(rowConstraint);
+//                height+=rowConstraint.getMaxHeight();
+//            }
+//        }
+//        if (function.hasOptionalParameters()) {
+//            StackPane optionalParamPane = new StackPane();
+//            optionalParamPane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+//            optionalParamPane.getChildren().add(new Text("Optional Parameters"));
+//            optionalParamPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//            functionGridPane.add(optionalParamPane, 0, row);
+//            StackPane optionalParamPaneInfo = new StackPane();
+//            optionalParamPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//            functionGridPane.add(optionalParamPaneInfo, 1, row);
+//            row++;
+//            rowConstraint = new RowConstraints(50);
+//            functionGridPane.getRowConstraints().add(rowConstraint);
+//            height+=rowConstraint.getMaxHeight();
+//
+//            for(int i = 0; i < function.getOptionalParameters().size() * 3; i++) {
+//                String optionalParamKey = "";
+//                String optionalParamData = "";
+//                int functionIndex = i/3;
+//                if (i % 3 == 0) {
+//                    optionalParamKey = "Name";
+//                    optionalParamData = function.getOptionalParameters().get(functionIndex).getName();
+//                }
+//                if (i % 3 == 1) {
+//                    optionalParamKey = "Tag";
+//                    optionalParamData = function.getOptionalParameters().get(functionIndex).getTag();
+//                }
+//                if (i % 3 == 2) {
+//                    optionalParamKey = "Text";
+//                    optionalParamData = function.getOptionalParameters().get(functionIndex).getText();
+//                }
+//                StackPane optionalParamChildPane = new StackPane();
+//                optionalParamChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+//                optionalParamChildPane.getChildren().add(new Text(optionalParamKey));
+//                optionalParamChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//                functionGridPane.add(optionalParamChildPane, 0, row);
+//                StackPane optionalParamChildPaneInfo = new StackPane();
+//                optionalParamChildPaneInfo.getChildren().add(new Text(optionalParamData));
+//                optionalParamChildPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//                functionGridPane.add(optionalParamChildPaneInfo, 1, row);
+//                row++;
+//                double rowHeight = optionalParamPaneInfo.getHeight();
+//                if (rowHeight < 25)
+//                    rowHeight = 25;
+//                rowConstraint = new RowConstraints(rowHeight);
+//                functionGridPane.getRowConstraints().add(rowConstraint);
+//                height+=rowConstraint.getMaxHeight();
+//            }
+//        }
+//        if (function.hasFunctionResults()) {
+//            StackPane resultsPane = new StackPane();
+//            resultsPane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+//            resultsPane.getChildren().add(new Text("Produces"));
+//            resultsPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//            functionGridPane.add(resultsPane, 0, row);
+//            StackPane resultPanesInfo = new StackPane();
+//            resultPanesInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//            functionGridPane.add(resultPanesInfo, 1, row);
+//            row++;
+//            rowConstraint = new RowConstraints(50);
+//            functionGridPane.getRowConstraints().add(rowConstraint);
+//            height+=rowConstraint.getMaxHeight();
+//
+//            for(int i = 0; i < function.getFunctionResults().size() * 3; i++) {
+//                String resultsParamKey = "";
+//                String resultsParamData = "";
+//                int functionIndex = i/3;
+//                if (i % 3 == 0) {
+//                    resultsParamKey = "Name";
+//                    resultsParamData = function.getFunctionResults().get(functionIndex).getName();
+//                }
+//                if (i % 3 == 1) {
+//                    resultsParamKey = "Tag";
+//                    resultsParamData = function.getFunctionResults().get(functionIndex).getTag();
+//                }
+//                if (i % 3 == 2) {
+//                    resultsParamKey = "Text";
+//                    resultsParamData = function.getFunctionResults().get(functionIndex).getText();
+//                }
+//                StackPane resultsChildPane = new StackPane();
+//                resultsChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+//                resultsChildPane.getChildren().add(new Text(resultsParamKey));
+//                resultsChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//                functionGridPane.add(resultsChildPane, 0, row);
+//                StackPane resultsChildPaneInfo = new StackPane();
+//                resultsChildPaneInfo.getChildren().add(new Text(resultsParamData));
+//                resultsChildPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+//                functionGridPane.add(resultsChildPaneInfo, 1, row);
+//                row++;
+//                double rowHeight = resultsChildPaneInfo.getHeight();
+//                if (rowHeight < 25)
+//                    rowHeight = 25;
+//                rowConstraint = new RowConstraints(rowHeight);
+//                functionGridPane.getRowConstraints().add(rowConstraint);
+//                height+=rowConstraint.getMaxHeight();
+//            }
+//        }
+//        functionGridPane.setAlignment(Pos.CENTER);
+//        functionGridPane.setPrefSize(800, height);
+//        functionGridPane.setVisible(false);
+//        functionGridPane.setManaged(false);
+//
+////        for (int i = 0; i < commandGridPane.getChildren().size()/2; i++) {
+////            RowConstraints rows = new RowConstraints(50);
+////            commandGridPane.getRowConstraints().add(rows);
+////        }
+//
+//        return functionGridPane;
+//    }
+//
+//    public void functionMouseEffects(StackPane functionHeader, GridPane functionGridPane, Function function) {
+//        DropShadow glow = new DropShadow();
+//        glow.setOffsetY(0);
+//        glow.setOffsetX(0);
+//        glow.setColor(Color.AQUA);
+//        glow.setWidth(25);
+//        glow.setHeight(25);
+//
+//        Label commandLabel = (Label) functionHeader.getChildren().get(0);
+//        Button classWindowButton = (Button) functionHeader.getChildren().get(1);
+//        ImageView imgView = (ImageView) classWindowButton.getGraphic();
+//
+//        classWindowButton.setOnMouseEntered(event -> {
+//            imgView.setEffect(glow);
+//        });
+//        classWindowButton.setOnMouseExited(event -> {
+//            imgView.setEffect(null);
+//        });
+//
+//        //command in new window
+//        classWindowButton.setOnMouseClicked(event -> {
+//            Stage commandWindow = new Stage();
+//            VBox windowedVBox = new VBox();
+//            StackPane windowedFunctionHeader = createBoxHeader(function.getFunctionName(),25, Color.DARKBLUE);
+//            GridPane windowedCommand = createFunctionGridPane(function);
+//            windowedCommand.setVisible(true);
+//            windowedCommand.setManaged(true);
+//            windowedVBox.getChildren().addAll(windowedFunctionHeader, windowedCommand);
+//            commandWindow.setScene(new Scene(windowedVBox,300,windowedCommand.getPrefHeight()));
+//            commandWindow.show();
+//        });
+//
+//        functionHeader.setOnMouseEntered(event -> {
+//                    functionHeader.setEffect(glow);
+//                    functionHeader.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+//                    commandLabel.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+//                    classWindowButton.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+//                }
+//        );
+//        functionHeader.setOnMouseExited(event -> {
+//                    functionHeader.setEffect(null);
+//                    functionHeader.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+//                    commandLabel.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+//                    classWindowButton.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+//                }
+//        );
+//
+//            functionHeader.setOnMouseClicked(event -> {
+//                if (functionGridPane.isVisible()) {
+//                    functionGridPane.setVisible(false);
+//                    functionGridPane.setManaged(false);
+//                } else {
+//                    functionGridPane.setVisible(true);
+//                    functionGridPane.setManaged(true);
+//                }
+//
+//        });
+//    }
+}
 

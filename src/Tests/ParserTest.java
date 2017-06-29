@@ -1,6 +1,9 @@
-package sample;
+package Tests;
 
 import org.junit.Test;
+import sample.LibraryParser;
+
+import java.util.ArrayList;
 
 /**
  * Created by Alex on 7/18/2016.
@@ -9,8 +12,8 @@ public class ParserTest {
 
     @Test
     public void testTestLibraryParser() throws Exception {
-        TestLibraryParser libraryParser = new TestLibraryParser("A:\\My Documents\\Programming\\JTAF-XCore\\seedProject\\src\\main\\resources\\testlibrary\\helloworld.commands.xml");
-        libraryParser.getCommands();
+        LibraryParser libraryParser = new LibraryParser("C:\\Users\\Michael\\Documents\\GitHub\\JTAF-XCore\\src\\test\\resources\\testlibrary\\context.test.commands.xml");
+        System.out.println(libraryParser.getFunctions());
     }
 
 //    @Test

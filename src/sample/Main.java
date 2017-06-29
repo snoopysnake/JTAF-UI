@@ -36,6 +36,7 @@ public class Main extends Application {
     private HashMap<String,List<String>> commandNameLibrary = new HashMap<>();
     @Override
     public void start(Stage primaryStage) throws Exception{
+        new JTAFViewer();
         Button btn = new Button();
         btn.setText("Find Existing Project");
         Text text = new Text();
@@ -91,15 +92,15 @@ public class Main extends Application {
             if (selectedDirectory != null) {
                 PROJECT_DIR = selectedDirectory.getPath();
                 if (FindExistingProject.search(PROJECT_DIR)) {
-                    try {
-                        createProjectViewer();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (SAXException e) {
-                        e.printStackTrace();
-                    } catch (ParserConfigurationException e) {
-                        e.printStackTrace();
-                    }
+//                    try {
+////                        createProjectViewer();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    } catch (SAXException e) {
+//                        e.printStackTrace();
+//                    } catch (ParserConfigurationException e) {
+//                        e.printStackTrace();
+//                    }
                     primaryStage.hide();
                 } else {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -126,168 +127,168 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-    private void createProjectViewer() throws IOException, SAXException, ParserConfigurationException {
-        Group root = new Group();
-        Stage newStage = new Stage();
-        newStage.setScene(new Scene(root));
-        newStage.setTitle(PROJECT_DIR);
-        BorderPane defaultBorderPane = new BorderPane();
-        final TabPane tabPane = new TabPane();
-        tabPane.setPrefSize(1200, 800);
-        tabPane.setSide(Side.TOP);
-        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-        final Tab tab1 = new Tab();
-        tab1.setText("Strategies");
-        tab1.setContent(createStrategiesPane());
-
-        final Tab tab2 = new Tab();
-        tab2.setText("Test Library");
-        tab2.setContent(createTestLibraryPane(tabPane));
-
-        final Tab tab3 = new Tab();
-        tab3.setText("Commands");
-        tab3.setContent(createCommandsPane());
-
-        final Tab tab4 = new Tab();
-        tab4.setText("JTAF Properties");
-
-        //tab 2
-        ScrollPane tab2Content = (ScrollPane) tab2.getContent();
-//        ListView<String> testLibraryListView = (ListView<String>) tab2Content.getContent();
-        //tab 3
-        ScrollPane tab3Content = (ScrollPane) tab3.getContent();
-        VBox tab3Box = (VBox) tab3Content.getContent();
-        ButtonBar commandsButtonBar = (ButtonBar) tab3Box.getChildren().get(0);
-        Button btn1= (Button) commandsButtonBar.getButtons().get(0);
-        btn1.setOnMouseClicked(event -> {
-            tab3Box.getChildren().remove(1);
-            tab3Box.getChildren().add(sortByLibrary());
-            tab3Content.setContent(tab3Box);
-        });
-
-        Button btn2 = (Button) commandsButtonBar.getButtons().get(1);
-        btn2.setOnMouseClicked(event -> {
-            tab3Box.getChildren().remove(1);
-            tab3Box.getChildren().add(sortByAll());
-            tab3Content.setContent(tab3Box);
-        });
-        ComboBox<String> fileTypeBox = (ComboBox<String>) commandsButtonBar.getButtons().get(2);
-//        Clicking on stuff
-//        testLibraryListView.setOnMouseClicked(event -> {
-//            String clickedLibrary = testLibraryListView.getSelectionModel().getSelectedItem();
-//            System.out.println("Clicked on: " + clickedLibrary);
-//        });
-        fileTypeBox.valueProperty().addListener((ov, before, after) -> {
-            System.out.println("Clicked: " + after);
-        });
-
-        tabPane.getTabs().addAll(tab1, tab2, tab3, tab4);
-        defaultBorderPane.setCenter(tabPane);
-        root.getChildren().add(defaultBorderPane);
-        newStage.show();
-
-//        StackPane projectViewer = new StackPane();
-//        StackPane.setAlignment(toolBar, Pos.TOP_CENTER);
-//        projectViewer.getChildren().add(toolBar);
+//    private void createProjectViewer() throws IOException, SAXException, ParserConfigurationException {
+//        Group root = new Group();
+//        Stage newStage = new Stage();
+//        newStage.setScene(new Scene(root));
+//        newStage.setTitle(PROJECT_DIR);
+//        BorderPane defaultBorderPane = new BorderPane();
+//        final TabPane tabPane = new TabPane();
+//        tabPane.setPrefSize(1200, 800);
+//        tabPane.setSide(Side.TOP);
+//        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+//        final Tab tab1 = new Tab();
+//        tab1.setText("Strategies");
+//        tab1.setContent(createStrategiesPane());
 //
-//        Stage projectViewerStage = new Stage();
-//        projectViewerStage.setTitle(selectedDirectory.getName());
-//        projectViewerStage.setScene(new Scene(projectViewer, 1200, 800));
-//        projectViewerStage.show();
-
-    }
+//        final Tab tab2 = new Tab();
+//        tab2.setText("Test Library");
+//        tab2.setContent(createTestLibraryPane(tabPane));
+//
+//        final Tab tab3 = new Tab();
+//        tab3.setText("Commands");
+//        tab3.setContent(createCommandsPane());
+//
+//        final Tab tab4 = new Tab();
+//        tab4.setText("JTAF Properties");
+//
+//        //tab 2
+//        ScrollPane tab2Content = (ScrollPane) tab2.getContent();
+////        ListView<String> testLibraryListView = (ListView<String>) tab2Content.getContent();
+//        //tab 3
+//        ScrollPane tab3Content = (ScrollPane) tab3.getContent();
+//        VBox tab3Box = (VBox) tab3Content.getContent();
+//        ButtonBar commandsButtonBar = (ButtonBar) tab3Box.getChildren().get(0);
+//        Button btn1= (Button) commandsButtonBar.getButtons().get(0);
+//        btn1.setOnMouseClicked(event -> {
+//            tab3Box.getChildren().remove(1);
+//            tab3Box.getChildren().add(sortByLibrary());
+//            tab3Content.setContent(tab3Box);
+//        });
+//
+//        Button btn2 = (Button) commandsButtonBar.getButtons().get(1);
+//        btn2.setOnMouseClicked(event -> {
+//            tab3Box.getChildren().remove(1);
+//            tab3Box.getChildren().add(sortByAll());
+//            tab3Content.setContent(tab3Box);
+//        });
+//        ComboBox<String> fileTypeBox = (ComboBox<String>) commandsButtonBar.getButtons().get(2);
+////        Clicking on stuff
+////        testLibraryListView.setOnMouseClicked(event -> {
+////            String clickedLibrary = testLibraryListView.getSelectionModel().getSelectedItem();
+////            System.out.println("Clicked on: " + clickedLibrary);
+////        });
+//        fileTypeBox.valueProperty().addListener((ov, before, after) -> {
+//            System.out.println("Clicked: " + after);
+//        });
+//
+//        tabPane.getTabs().addAll(tab1, tab2, tab3, tab4);
+//        defaultBorderPane.setCenter(tabPane);
+//        root.getChildren().add(defaultBorderPane);
+//        newStage.show();
+//
+////        StackPane projectViewer = new StackPane();
+////        StackPane.setAlignment(toolBar, Pos.TOP_CENTER);
+////        projectViewer.getChildren().add(toolBar);
+////
+////        Stage projectViewerStage = new Stage();
+////        projectViewerStage.setTitle(selectedDirectory.getName());
+////        projectViewerStage.setScene(new Scene(projectViewer, 1200, 800));
+////        projectViewerStage.show();
+//
+//    }
 
     private Pane createStrategiesPane() {
         StackPane strategiesPane = new StackPane();
         return strategiesPane;
     }
 
-    private ScrollPane createTestLibraryPane(TabPane tabPane) throws ParserConfigurationException, IOException, SAXException {
-        ScrollPane testLibraryPane = new ScrollPane();
-        testLibraryPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        testLibraryPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-        testLibraryPane.setFitToWidth(true);
-
-        ArrayList<String> testLibraryCommands = new ArrayList<>();
-        File testLibraryPath = new File(PROJECT_DIR+TEST_LIBRARY_DIR);
-        if (!testLibraryPath.isDirectory()) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setHeaderText("");
-            alert.setContentText("Invalid test library directory!");
-            alert.showAndWait();
-        } else {
-            testLibraryCommands = searchForCommands(testLibraryPath.listFiles(), testLibraryCommands, "", ".xml");
-            System.out.println("Searched test library: " + testLibraryCommands);
-        }
-
-//        final ListView<String> testLibraryListView = new ListView<>();
-//        testLibraryListView.setItems(FXCollections.observableArrayList(testLibraryCommands));
-//        testLibraryListView.setPrefHeight(800);
-
-        Accordion testLibraryAccordion = new Accordion();
-        testLibraryMap = new HashMap<>();
-        for (String testLibraryName : testLibraryCommands) {
-            String testLibraryChild = PROJECT_DIR+TEST_LIBRARY_DIR+"\\"+testLibraryName;
-            TestLibraryParser testLibraryParser = null;
-            try {
-                testLibraryParser = new TestLibraryParser(testLibraryChild);
-                HashMap<String, HashMap<String, String>> commandChildren = testLibraryParser.getCommandChildren();
-//                commandNameLibrary.put(testLibraryName, commandChildren.keySet());
-                testLibraryMap.put(testLibraryName, commandChildren.keySet()); //??
-                ArrayList<String> commandClassList = new ArrayList<>();
-
-                //iterates through each command in each test library
-                final ListView<String> commandListView = new ListView<>();
-                for (String commandName : commandChildren.keySet()) {
-                    HashMap<String, String> commandData = commandChildren.get(commandName);
-                    String tagName = commandData.get("tag").toUpperCase();
-                    commandListView.getItems().add(tagName);
-                    String className = "";
-                    if(commandData.get("class") != null) {
-                        className = " (" + commandData.get("class") + ")";
-                        commandClassList.add(commandData.get("class"));
-                    }
-                    commandListView.getItems().add("name: " + commandName+className);
-
-                    for (String c : commandData.keySet()) {
-                        if (!c.equals("class") && !c.equals("tag") && !c.equals("") &&
-                                !c.contains("optionalParameter") && !c.contains("requiredParameter"))
-                            commandListView.getItems().add(c + ": " + commandData.get(c));
-                    }
-                    if(!testLibraryParser.getRequiredParameters().isEmpty()) {
-                        commandListView.getItems().add("REQUIRED PARAMETER(S):\n");
-                        commandListView.getItems().add(testLibraryParser.getRequiredParameters().get(commandName));
-                    }
-                    if (!testLibraryParser.getOptionalParameters().isEmpty()) {
-                        commandListView.getItems().add("OPTIONAL PARAMETER(S):\n");
-                        for (String param : testLibraryParser.getOptionalParameters().keySet()) {
-                            commandListView.getItems().add(param);
-                        }
-                    }
-                    commandListView.getItems().add("");
-                }
-                commandNameLibrary.put(testLibraryName, commandClassList);
-
-                TitledPane testLibraryTP = new TitledPane(testLibraryName,commandListView);
-                testLibraryAccordion.getPanes().add(testLibraryTP);
-//                System.out.println(commandChildren.keySet());
-            } catch (ParserConfigurationException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (SAXException e) {
-                e.printStackTrace();
-            }
-        }
-
-//        testLibraryListView.setOnMouseClicked(event -> {
-//            String clickedLibrary = testLibraryListView.getSelectionModel().getSelectedItem();
-//            System.out.println("Clicked on: " + clickedLibrary);
-//            tabPane.getSelectionModel().select(2);
-//        });
-        testLibraryPane.setContent(testLibraryAccordion);
-        return testLibraryPane;
-    }
+//    private ScrollPane createTestLibraryPane(TabPane tabPane) throws ParserConfigurationException, IOException, SAXException {
+//        ScrollPane testLibraryPane = new ScrollPane();
+//        testLibraryPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+//        testLibraryPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+//        testLibraryPane.setFitToWidth(true);
+//
+//        ArrayList<String> testLibraryCommands = new ArrayList<>();
+//        File testLibraryPath = new File(PROJECT_DIR+TEST_LIBRARY_DIR);
+//        if (!testLibraryPath.isDirectory()) {
+//            Alert alert = new Alert(Alert.AlertType.ERROR);
+//            alert.setHeaderText("");
+//            alert.setContentText("Invalid test library directory!");
+//            alert.showAndWait();
+//        } else {
+//            testLibraryCommands = searchForCommands(testLibraryPath.listFiles(), testLibraryCommands, "", ".xml");
+//            System.out.println("Searched test library: " + testLibraryCommands);
+//        }
+//
+////        final ListView<String> testLibraryListView = new ListView<>();
+////        testLibraryListView.setItems(FXCollections.observableArrayList(testLibraryCommands));
+////        testLibraryListView.setPrefHeight(800);
+//
+//        Accordion testLibraryAccordion = new Accordion();
+//        testLibraryMap = new HashMap<>();
+//        for (String testLibraryName : testLibraryCommands) {
+//            String testLibraryChild = PROJECT_DIR+TEST_LIBRARY_DIR+"\\"+testLibraryName;
+//            LibraryParser testLibraryParser = null;
+//            try {
+//                testLibraryParser = new LibraryParser(testLibraryChild);
+//                HashMap<String, HashMap<String, String>> commandChildren = testLibraryParser.getCommandChildren();
+////                commandNameLibrary.put(testLibraryName, commandChildren.keySet());
+//                testLibraryMap.put(testLibraryName, commandChildren.keySet()); //??
+//                ArrayList<String> commandClassList = new ArrayList<>();
+//
+//                //iterates through each command in each test library
+//                final ListView<String> commandListView = new ListView<>();
+//                for (String commandName : commandChildren.keySet()) {
+//                    HashMap<String, String> commandData = commandChildren.get(commandName);
+//                    String tagName = commandData.get("tag").toUpperCase();
+//                    commandListView.getItems().add(tagName);
+//                    String className = "";
+//                    if(commandData.get("class") != null) {
+//                        className = " (" + commandData.get("class") + ")";
+//                        commandClassList.add(commandData.get("class"));
+//                    }
+//                    commandListView.getItems().add("name: " + commandName+className);
+//
+//                    for (String c : commandData.keySet()) {
+//                        if (!c.equals("class") && !c.equals("tag") && !c.equals("") &&
+//                                !c.contains("optionalParameter") && !c.contains("requiredParameter"))
+//                            commandListView.getItems().add(c + ": " + commandData.get(c));
+//                    }
+//                    if(!testLibraryParser.getRequiredParameters().isEmpty()) {
+//                        commandListView.getItems().add("REQUIRED PARAMETER(S):\n");
+//                        commandListView.getItems().add(testLibraryParser.getRequiredParameters().get(commandName));
+//                    }
+//                    if (!testLibraryParser.getOptionalParameters().isEmpty()) {
+//                        commandListView.getItems().add("OPTIONAL PARAMETER(S):\n");
+//                        for (String param : testLibraryParser.getOptionalParameters().keySet()) {
+//                            commandListView.getItems().add(param);
+//                        }
+//                    }
+//                    commandListView.getItems().add("");
+//                }
+//                commandNameLibrary.put(testLibraryName, commandClassList);
+//
+//                TitledPane testLibraryTP = new TitledPane(testLibraryName,commandListView);
+//                testLibraryAccordion.getPanes().add(testLibraryTP);
+////                System.out.println(commandChildren.keySet());
+//            } catch (ParserConfigurationException e) {
+//                e.printStackTrace();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            } catch (SAXException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+////        testLibraryListView.setOnMouseClicked(event -> {
+////            String clickedLibrary = testLibraryListView.getSelectionModel().getSelectedItem();
+////            System.out.println("Clicked on: " + clickedLibrary);
+////            tabPane.getSelectionModel().select(2);
+////        });
+//        testLibraryPane.setContent(testLibraryAccordion);
+//        return testLibraryPane;
+//    }
 
     private ScrollPane createCommandsPane() throws ParserConfigurationException, IOException, SAXException {
         ScrollPane commandsPane = new ScrollPane();
