@@ -53,16 +53,104 @@ public class JTAFViewer extends Stage {
         BorderPane defaultBorderPane = new BorderPane();
         defaultBorderPane.setPrefHeight(600);
 
+        //get all library paths
         JTAFDirectory directory = new JTAFDirectory(PROJECT_DIR, TEST_LIBRARY_DIR); //add more paths later.
         ArrayList<String> testLibrary = directory.getTestLibrary();
         ScrollPane directoryPane = directory.getDirectoryPane();
         directoryState[0] = directoryPane;
 
+        HashMap<String, ArrayList<StackPane>> totalLibraryBodyPanes = new HashMap<>();
+        HashMap<String, ArrayList<StackPane>> totalWindowedLibraryBodyPanes = new HashMap<>();
+        HashMap<String, Stage> totalCommandWindows = new HashMap<>();
+        HashMap<String, Stage> totalFunctionWindows = new HashMap<>();
+
         //directory buttons
         for (int i = 0; i < testLibrary.size(); i++) {
-            ScrollPane libraryPane = new JTAFLibrary(PROJECT_DIR+TEST_LIBRARY_DIR+"\\"+testLibrary.get(i)).getLibraryPane();
-            testLibraryMap.put(testLibrary.get(i), libraryPane);
+            JTAFLibrary jtafLibrary = new JTAFLibrary(PROJECT_DIR+TEST_LIBRARY_DIR+"\\"+testLibrary.get(i));
+            ScrollPane libraryPane = jtafLibrary.getLibraryPane();
+            testLibraryMap.put(testLibrary.get(i), libraryPane); //maps library name to library pane for directory buttons
+            HashMap<String, ArrayList<StackPane>> libraryBodyPanes = jtafLibrary.getLibraryBodyPanes(); //maps library name to body panes
+            HashMap<String, ArrayList<StackPane>> windowedLibraryBodyPanes = jtafLibrary.getWindowedLibraryBodyPanes(); //maps windowed library name to body panes
+            HashMap<String, Stage> commandWindows = jtafLibrary.getCommandWindows(); //maps command to stage/window
+            HashMap<String, Stage> functionWindows = jtafLibrary.getFunctionWindows(); //maps function to stage/window
+            totalLibraryBodyPanes.putAll(libraryBodyPanes);
+            totalWindowedLibraryBodyPanes.putAll(windowedLibraryBodyPanes);
+            totalCommandWindows.putAll(commandWindows);
+            totalFunctionWindows.putAll(functionWindows);
         }
+
+        //fill out library function bodies
+        for(String libraryName : totalLibraryBodyPanes.keySet()) {
+            ArrayList<StackPane> libraryBodyPanes = totalLibraryBodyPanes.get(libraryName); //gets panes of each library
+            //starts at index 2, skips library header
+            for (int i = 2; i < libraryBodyPanes.size(); i+=2) {
+                Text bodyChildNameText = (Text) libraryBodyPanes.get(i).getChildren().get(0);
+                String bodyChild = bodyChildNameText.getText(); //name of command or function
+               //checks map and then gets window from command/function name
+                System.out.println(bodyChild + " " + totalFunctionWindows.keySet());
+
+                if (totalCommandWindows.keySet().contains(bodyChild)) {
+                    Hyperlink openBodyChild = new Hyperlink("Open Command");
+                    openBodyChild.setOnMouseClicked(event -> {
+                        Stage window = totalCommandWindows.get(bodyChild);
+                        if (window.isShowing())
+                            window.close();
+                        window.show();
+                    });
+                    libraryBodyPanes.get(i+1).getChildren().add(openBodyChild); //set
+                }
+                else if (totalFunctionWindows.keySet().contains(bodyChild)) {
+                    Hyperlink openBodyChild = new Hyperlink("Open Function");
+                    openBodyChild.setOnMouseClicked(event -> {
+                        Stage window = totalFunctionWindows.get(bodyChild);
+                        if (window.isShowing())
+                            window.close();
+                        window.show();
+                    });
+                    libraryBodyPanes.get(i+1).getChildren().add(openBodyChild); //set
+                }
+                else {
+                    Text bodyChildNotFound = new Text("Not found!");
+                    libraryBodyPanes.get(i+1).getChildren().add(bodyChildNotFound); //set
+                }
+            }
+        }
+
+        //fill out windowed library function bodies
+        for(String libraryName : totalWindowedLibraryBodyPanes.keySet()) {
+            ArrayList<StackPane> windowedLibraryBodyPanes = totalWindowedLibraryBodyPanes.get(libraryName); //gets panes of each library
+            //starts at index 2, skips library header
+            for (int i = 2; i < windowedLibraryBodyPanes.size(); i+=2) {
+                Text bodyChildNameText = (Text) windowedLibraryBodyPanes.get(i).getChildren().get(0);
+                String bodyChild = bodyChildNameText.getText(); //name of command or function
+//                checks map and then gets window from command/function name
+//                if (totalCommandWindows.keySet().contains(bodyChild)) {
+//                    Hyperlink openBodyChild = new Hyperlink("Open Command");
+//                    openBodyChild.setOnMouseClicked(event -> {
+//                        Stage window = totalCommandWindows.get(bodyChild);
+//                        if (window.isShowing())
+//                            window.close();
+//                        window.show();
+//                    });
+//                    libraryBodyPanes.get(i+1).getChildren().add(openBodyChild); //set
+//                }
+//                else if (totalFunctionWindows.keySet().contains(bodyChild)) {
+//                    Hyperlink openBodyChild = new Hyperlink("Open Function");
+//                    openBodyChild.setOnMouseClicked(event -> {
+//                        Stage window = totalFunctionWindows.get(bodyChild);
+//                        if (window.isShowing())
+//                            window.close();
+//                        window.show();
+//                    });
+//                    libraryBodyPanes.get(i+1).getChildren().add(openBodyChild); //set
+//                }
+//                else {
+                Text bodyChildNotFound = new Text("Not found!");
+                windowedLibraryBodyPanes.get(i+1).getChildren().add(bodyChildNotFound); //set
+//                }
+            }
+        }
+
         ScrollPane emptyLibraryPane = new ScrollPane();
         centerState[0] = emptyLibraryPane;
         emptyLibraryPane.setPrefSize(800,600);

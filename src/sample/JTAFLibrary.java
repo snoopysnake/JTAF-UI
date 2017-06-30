@@ -7,6 +7,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.DropShadow;
@@ -16,18 +17,25 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by Michael on 06/29/2017.
  */
 public class JTAFLibrary {
     private ScrollPane libraryPane;
+    private HashMap<String, Stage> commandWindows = new HashMap<>();
+    private HashMap<String, Stage> functionWindows = new HashMap<>();
+    private HashMap<String, ArrayList<StackPane>> libraryBodyPanes = new HashMap<>();
+    private HashMap<String, ArrayList<StackPane>> windowedLibraryBodyPanes = new HashMap<>();
 
     public JTAFLibrary(String libraryPath) throws IOException, SAXException, ParserConfigurationException {
         libraryPane = new ScrollPane();
@@ -51,6 +59,7 @@ public class JTAFLibrary {
                 Command command = commands.get(i);
                 StackPane commandHeader = createLibraryHeader(command.getCommandName());
                 GridPane commandGridPane = createCommandGridPane(command);
+                createCommandWindows(command); //must be created before mouse effects set
                 commandMouseEffects(commandHeader, commandGridPane, command);
                 commandBox.getChildren().add(commandHeader);
                 commandBox.getChildren().add(commandGridPane);
@@ -77,12 +86,12 @@ public class JTAFLibrary {
             for (int i = 0; i < libraryParser.getFunctions().size(); i++) {
                 Function function = functions.get(i);
                 StackPane functionHeader = createLibraryHeader(function.getFunctionName());
-                GridPane functionGridPane = createFunctionGridPane(function);
+                GridPane functionGridPane = createFunctionGridPane(function, libraryBodyPanes);
+                createFunctionWindows(function); //must be created before mouse effects set
                 functionMouseEffects(functionHeader, functionGridPane, function);
                 functionBox.getChildren().add(functionHeader);
                 functionBox.getChildren().add(functionGridPane);
             }
-
             //functions header
             functionBoxHeader.setOnMouseClicked(event -> {
                 int sum = 0;
@@ -178,13 +187,18 @@ public class JTAFLibrary {
                     BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
             commandGridPane.add(usagePane, 0, row);
             StackPane usagePaneInfo = new StackPane();
-            usagePaneInfo.getChildren().add(new Text(command.getCommandUsage().trim())); //should make height variable
+            Text commandUsageText = new Text(command.getCommandUsage().trim());
+            commandUsageText.setWrappingWidth(500);
+            commandUsageText.setTextAlignment(TextAlignment.CENTER);
+            usagePaneInfo.getChildren().add(commandUsageText); //should make height variable
             usagePaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
                     BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
             commandGridPane.add(usagePaneInfo, 1, row);
             row++;
-            if (usagePane.getMaxHeight() > 50)
-                rowConstraint = new RowConstraints(usagePane.getMaxHeight());
+            double rowHeight = usagePaneInfo.getBoundsInParent().getHeight();
+            if (rowHeight < 50)
+                rowHeight = 50;
+            rowConstraint = new RowConstraints(rowHeight);
             commandGridPane.getRowConstraints().add(rowConstraint);
             height+=rowConstraint.getMaxHeight();
         }
@@ -205,34 +219,36 @@ public class JTAFLibrary {
             height+=rowConstraint.getMaxHeight();
 
             for(int i = 0; i < command.getRequiredParameters().size() * 3; i++) {
-                String requiredParamKey = "";
-                String requiredParamData = "";
+                Text requiredParamKey = new Text("");
+                Text requiredParamData = new Text("");
                 int commandIndex = i/3;
                 if (i % 3 == 0) {
-                    requiredParamKey = "Name";
-                    requiredParamData = command.getRequiredParameters().get(commandIndex).getName();
+                    requiredParamKey.setText("Name");
+                    requiredParamData.setText(command.getRequiredParameters().get(commandIndex).getName());
                 }
                 if (i % 3 == 1) {
-                    requiredParamKey = "Tag";
-                    requiredParamData = command.getRequiredParameters().get(commandIndex).getTag();
+                    requiredParamKey.setText("Tag");
+                    requiredParamData.setText(command.getRequiredParameters().get(commandIndex).getTag());
                 }
                 if (i % 3 == 2) {
-                    requiredParamKey = "Text";
-                    requiredParamData = command.getRequiredParameters().get(commandIndex).getText();
+                    requiredParamKey.setText("Text");
+                    requiredParamData.setWrappingWidth(500);
+                    requiredParamData.setTextAlignment(TextAlignment.CENTER);
+                    requiredParamData.setText(command.getRequiredParameters().get(commandIndex).getText());
                 }
                 StackPane requiredParamChildPane = new StackPane();
                 requiredParamChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
-                requiredParamChildPane.getChildren().add(new Text(requiredParamKey));
+                requiredParamChildPane.getChildren().add(requiredParamKey);
                 requiredParamChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                 commandGridPane.add(requiredParamChildPane, 0, row);
                 StackPane requiredParamChildPaneInfo = new StackPane();
-                requiredParamChildPaneInfo.getChildren().add(new Text(requiredParamData));
+                requiredParamChildPaneInfo.getChildren().add(requiredParamData);
                 requiredParamChildPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                 commandGridPane.add(requiredParamChildPaneInfo, 1, row);
                 row++;
-                double rowHeight = requiredParamChildPaneInfo.getHeight();
+                double rowHeight = requiredParamChildPaneInfo.getBoundsInParent().getHeight();
                 if (rowHeight < 25)
                     rowHeight = 25;
                 rowConstraint = new RowConstraints(rowHeight);
@@ -257,34 +273,36 @@ public class JTAFLibrary {
             height+=rowConstraint.getMaxHeight();
 
             for(int i = 0; i < command.getOptionalParameters().size() * 3; i++) {
-                String optionalParamKey = "";
-                String optionalParamData = "";
+                Text optionalParamKey = new Text("");
+                Text optionalParamData = new Text("");
                 int commandIndex = i/3;
                 if (i % 3 == 0) {
-                    optionalParamKey = "Name";
-                    optionalParamData = command.getOptionalParameters().get(commandIndex).getName();
+                    optionalParamKey.setText("Name");
+                    optionalParamData.setText(command.getOptionalParameters().get(commandIndex).getName());
                 }
                 if (i % 3 == 1) {
-                    optionalParamKey = "Tag";
-                    optionalParamData = command.getOptionalParameters().get(commandIndex).getTag();
+                    optionalParamKey.setText("Tag");
+                    optionalParamData.setText(command.getOptionalParameters().get(commandIndex).getTag());
                 }
                 if (i % 3 == 2) {
-                    optionalParamKey = "Text";
-                    optionalParamData = command.getOptionalParameters().get(commandIndex).getText();
+                    optionalParamKey.setText("Text");
+                    optionalParamData.setWrappingWidth(500);
+                    optionalParamData.setTextAlignment(TextAlignment.CENTER);
+                    optionalParamData.setText(command.getOptionalParameters().get(commandIndex).getText());
                 }
                 StackPane optionalParamChildPane = new StackPane();
                 optionalParamChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
-                optionalParamChildPane.getChildren().add(new Text(optionalParamKey));
+                optionalParamChildPane.getChildren().add(optionalParamKey);
                 optionalParamChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                 commandGridPane.add(optionalParamChildPane, 0, row);
                 StackPane optionalParamChildPaneInfo = new StackPane();
-                optionalParamChildPaneInfo.getChildren().add(new Text(optionalParamData));
+                optionalParamChildPaneInfo.getChildren().add(optionalParamData);
                 optionalParamChildPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                 commandGridPane.add(optionalParamChildPaneInfo, 1, row);
                 row++;
-                double rowHeight = optionalParamPaneInfo.getHeight();
+                double rowHeight = optionalParamChildPaneInfo.getBoundsInParent().getHeight();
                 if (rowHeight < 25)
                     rowHeight = 25;
                 rowConstraint = new RowConstraints(rowHeight);
@@ -309,34 +327,37 @@ public class JTAFLibrary {
             height+=rowConstraint.getMaxHeight();
 
             for(int i = 0; i < command.getCommandResults().size() * 3; i++) {
-                String resultsParamKey = "";
-                String resultsParamData = "";
+
+                Text resultsParamKey = new Text("");
+                Text resultsParamData = new Text("");
                 int commandIndex = i/3;
                 if (i % 3 == 0) {
-                    resultsParamKey = "Name";
-                    resultsParamData = command.getCommandResults().get(commandIndex).getName();
+                    resultsParamKey.setText("Name");
+                    resultsParamData.setText(command.getCommandResults().get(commandIndex).getName());
                 }
                 if (i % 3 == 1) {
-                    resultsParamKey = "Tag";
-                    resultsParamData = command.getCommandResults().get(commandIndex).getTag();
+                    resultsParamKey.setText("Tag");
+                    resultsParamData.setText(command.getCommandResults().get(commandIndex).getTag());
                 }
                 if (i % 3 == 2) {
-                    resultsParamKey = "Text";
-                    resultsParamData = command.getCommandResults().get(commandIndex).getText();
+                    resultsParamKey.setText("Text");
+                    resultsParamData.setWrappingWidth(500);
+                    resultsParamData.setTextAlignment(TextAlignment.CENTER);
+                    resultsParamData.setText(command.getCommandResults().get(commandIndex).getText());
                 }
                 StackPane resultsChildPane = new StackPane();
                 resultsChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
-                resultsChildPane.getChildren().add(new Text(resultsParamKey));
+                resultsChildPane.getChildren().add(resultsParamKey);
                 resultsChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                 commandGridPane.add(resultsChildPane, 0, row);
                 StackPane resultsChildPaneInfo = new StackPane();
-                resultsChildPaneInfo.getChildren().add(new Text(resultsParamData));
+                resultsChildPaneInfo.getChildren().add(resultsParamData);
                 resultsChildPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                 commandGridPane.add(resultsChildPaneInfo, 1, row);
                 row++;
-                double rowHeight = resultsChildPaneInfo.getHeight();
+                double rowHeight = resultsChildPaneInfo.getBoundsInParent().getHeight();
                 if (rowHeight < 25)
                     rowHeight = 25;
                 rowConstraint = new RowConstraints(rowHeight);
@@ -378,15 +399,10 @@ public class JTAFLibrary {
 
         //command in new window
         classWindowButton.setOnMouseClicked(event -> {
-            Stage commandWindow = new Stage();
-            VBox windowedVBox = new VBox();
-            StackPane windowedCommandHeader = createBoxHeader(command.getCommandName(),25, Color.DARKBLUE);
-            GridPane windowedCommand = createCommandGridPane(command);
-            windowedCommand.setVisible(true);
-            windowedCommand.setManaged(true);
-            windowedVBox.getChildren().addAll(windowedCommandHeader, windowedCommand);
-            commandWindow.setScene(new Scene(windowedVBox,300,windowedCommand.getPrefHeight()));
-            commandWindow.show();
+            Stage windowStage = commandWindows.get(command.getCommandName());
+            if (windowStage.isShowing())
+                windowStage.close();
+            windowStage.show();
         });
 
         commandHeader.setOnMouseEntered(event -> {
@@ -434,7 +450,7 @@ public class JTAFLibrary {
         }
     }
 
-    public GridPane createFunctionGridPane(Function function) {
+    public GridPane createFunctionGridPane(Function function, HashMap<String, ArrayList<StackPane>> totalBodyPanes) {
         final GridPane functionGridPane = new GridPane();
         functionGridPane.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
         ColumnConstraints col1 = new ColumnConstraints();
@@ -445,7 +461,7 @@ public class JTAFLibrary {
 
         int row = 0;
         int height = 0;
-        RowConstraints rowConstraint = new RowConstraints(50);
+        RowConstraints rowConstraint;
         if (function.hasFunctionUsage()) {
             StackPane usagePane = new StackPane();
             usagePane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -454,13 +470,18 @@ public class JTAFLibrary {
                     BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
             functionGridPane.add(usagePane, 0, row);
             StackPane usagePaneInfo = new StackPane();
-            usagePaneInfo.getChildren().add(new Text(function.getFunctionUsage().trim())); //should make height variable
+            Text functionUsageText = new Text(function.getFunctionUsage().trim());
+            functionUsageText.setWrappingWidth(500);
+            functionUsageText.setTextAlignment(TextAlignment.CENTER);
+            usagePaneInfo.getChildren().add(functionUsageText); //should make height variable
             usagePaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
                     BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
             functionGridPane.add(usagePaneInfo, 1, row);
             row++;
-            if (usagePane.getMaxHeight() > 50)
-                rowConstraint = new RowConstraints(usagePane.getMaxHeight());
+            double rowHeight = usagePaneInfo.getBoundsInParent().getHeight();
+            if (rowHeight < 50)
+                rowHeight = 50;
+            rowConstraint = new RowConstraints(rowHeight);
             functionGridPane.getRowConstraints().add(rowConstraint);
             height+=rowConstraint.getMaxHeight();
         }
@@ -481,34 +502,36 @@ public class JTAFLibrary {
             height+=rowConstraint.getMaxHeight();
 
             for(int i = 0; i < function.getRequiredParameters().size() * 3; i++) {
-                String requiredParamKey = "";
-                String requiredParamData = "";
+                Text requiredParamKey = new Text("");
+                Text requiredParamData = new Text("");
                 int functionIndex = i/3;
                 if (i % 3 == 0) {
-                    requiredParamKey = "Name";
-                    requiredParamData = function.getRequiredParameters().get(functionIndex).getName();
+                    requiredParamKey.setText("Name");
+                    requiredParamData.setText(function.getRequiredParameters().get(functionIndex).getName());
                 }
                 if (i % 3 == 1) {
-                    requiredParamKey = "Tag";
-                    requiredParamData = function.getRequiredParameters().get(functionIndex).getTag();
+                    requiredParamKey.setText("Tag");
+                    requiredParamData.setText(function.getRequiredParameters().get(functionIndex).getTag());
                 }
                 if (i % 3 == 2) {
-                    requiredParamKey = "Text";
-                    requiredParamData = function.getRequiredParameters().get(functionIndex).getText();
+                    requiredParamKey.setText("Text");
+                    requiredParamData.setWrappingWidth(500);
+                    requiredParamData.setTextAlignment(TextAlignment.CENTER);
+                    requiredParamData.setText(function.getRequiredParameters().get(functionIndex).getText());
                 }
                 StackPane requiredParamChildPane = new StackPane();
                 requiredParamChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
-                requiredParamChildPane.getChildren().add(new Text(requiredParamKey));
+                requiredParamChildPane.getChildren().add(requiredParamKey);
                 requiredParamChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                 functionGridPane.add(requiredParamChildPane, 0, row);
                 StackPane requiredParamChildPaneInfo = new StackPane();
-                requiredParamChildPaneInfo.getChildren().add(new Text(requiredParamData));
+                requiredParamChildPaneInfo.getChildren().add(requiredParamData);
                 requiredParamChildPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                 functionGridPane.add(requiredParamChildPaneInfo, 1, row);
                 row++;
-                double rowHeight = requiredParamChildPaneInfo.getHeight();
+                double rowHeight = requiredParamChildPaneInfo.getBoundsInParent().getHeight();
                 if (rowHeight < 25)
                     rowHeight = 25;
                 rowConstraint = new RowConstraints(rowHeight);
@@ -533,40 +556,82 @@ public class JTAFLibrary {
             height+=rowConstraint.getMaxHeight();
 
             for(int i = 0; i < function.getOptionalParameters().size() * 3; i++) {
-                String optionalParamKey = "";
-                String optionalParamData = "";
+                Text optionalParamKey = new Text("");
+                Text optionalParamData = new Text("");
                 int functionIndex = i/3;
                 if (i % 3 == 0) {
-                    optionalParamKey = "Name";
-                    optionalParamData = function.getOptionalParameters().get(functionIndex).getName();
+                    optionalParamKey.setText("Name");
+                    optionalParamData.setText(function.getOptionalParameters().get(functionIndex).getName());
                 }
                 if (i % 3 == 1) {
-                    optionalParamKey = "Tag";
-                    optionalParamData = function.getOptionalParameters().get(functionIndex).getTag();
+                    optionalParamKey.setText("Tag");
+                    optionalParamData.setText(function.getOptionalParameters().get(functionIndex).getTag());
                 }
                 if (i % 3 == 2) {
-                    optionalParamKey = "Text";
-                    optionalParamData = function.getOptionalParameters().get(functionIndex).getText();
+                    optionalParamKey.setText("Text");
+                    optionalParamData.setWrappingWidth(500);
+                    optionalParamData.setTextAlignment(TextAlignment.CENTER);
+                    optionalParamData.setText(function.getOptionalParameters().get(functionIndex).getText());
                 }
                 StackPane optionalParamChildPane = new StackPane();
                 optionalParamChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
-                optionalParamChildPane.getChildren().add(new Text(optionalParamKey));
+                optionalParamChildPane.getChildren().add(optionalParamKey);
                 optionalParamChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                 functionGridPane.add(optionalParamChildPane, 0, row);
                 StackPane optionalParamChildPaneInfo = new StackPane();
-                optionalParamChildPaneInfo.getChildren().add(new Text(optionalParamData));
+                optionalParamChildPaneInfo.getChildren().add(optionalParamData);
                 optionalParamChildPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                 functionGridPane.add(optionalParamChildPaneInfo, 1, row);
                 row++;
-                double rowHeight = optionalParamPaneInfo.getHeight();
+                double rowHeight = optionalParamChildPaneInfo.getBoundsInParent().getHeight();
                 if (rowHeight < 25)
                     rowHeight = 25;
                 rowConstraint = new RowConstraints(rowHeight);
                 functionGridPane.getRowConstraints().add(rowConstraint);
                 height+=rowConstraint.getMaxHeight();
             }
+        }
+        if (function.hasFunctionBody()) {
+            ArrayList<StackPane> bodyPanes = new ArrayList<>();
+            StackPane functionBodyPane = new StackPane();
+            functionBodyPane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+            functionBodyPane.getChildren().add(new Text("Body"));
+            functionBodyPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+            bodyPanes.add(functionBodyPane); //add pane 1
+            functionGridPane.add(functionBodyPane, 0, row);
+            StackPane functionBodyPaneInfo = new StackPane();
+            functionBodyPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
+                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+            bodyPanes.add(functionBodyPaneInfo); //add pane 2
+            functionGridPane.add(functionBodyPaneInfo, 1, row);
+            row++;
+            rowConstraint = new RowConstraints(50);
+            functionGridPane.getRowConstraints().add(rowConstraint);
+            height += rowConstraint.getMaxHeight();
+
+            for (int i = 0; i < function.getFunctionBody().size(); i++) {
+                String functionBodyCommandName = function.getFunctionBody().get(i);
+                StackPane functionBodyChildPane = new StackPane();
+                functionBodyChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+                functionBodyChildPane.getChildren().add(new Text(functionBodyCommandName));
+                functionBodyChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                bodyPanes.add(functionBodyChildPane);
+                functionGridPane.add(functionBodyChildPane, 0, row);
+                StackPane functionBodyChildPaneInfo = new StackPane();
+                functionBodyChildPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
+                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                bodyPanes.add(functionBodyChildPaneInfo);
+                functionGridPane.add(functionBodyChildPaneInfo, 1, row);
+                row++;
+                rowConstraint = new RowConstraints(25);
+                functionGridPane.getRowConstraints().add(rowConstraint);
+                height += rowConstraint.getMaxHeight();
+            }
+            totalBodyPanes.put(function.getFunctionName(), bodyPanes);
         }
         if (function.hasFunctionResults()) {
             StackPane resultsPane = new StackPane();
@@ -585,34 +650,36 @@ public class JTAFLibrary {
             height+=rowConstraint.getMaxHeight();
 
             for(int i = 0; i < function.getFunctionResults().size() * 3; i++) {
-                String resultsParamKey = "";
-                String resultsParamData = "";
+                Text resultsParamKey = new Text("");
+                Text resultsParamData = new Text("");
                 int functionIndex = i/3;
                 if (i % 3 == 0) {
-                    resultsParamKey = "Name";
-                    resultsParamData = function.getFunctionResults().get(functionIndex).getName();
+                    resultsParamKey.setText("Name");
+                    resultsParamData.setText(function.getFunctionResults().get(functionIndex).getName());
                 }
                 if (i % 3 == 1) {
-                    resultsParamKey = "Tag";
-                    resultsParamData = function.getFunctionResults().get(functionIndex).getTag();
+                    resultsParamKey.setText("Tag");
+                    resultsParamData.setText(function.getFunctionResults().get(functionIndex).getTag());
                 }
                 if (i % 3 == 2) {
-                    resultsParamKey = "Text";
-                    resultsParamData = function.getFunctionResults().get(functionIndex).getText();
+                    resultsParamKey.setText("Text");
+                    resultsParamData.setWrappingWidth(500);
+                    resultsParamData.setTextAlignment(TextAlignment.CENTER);
+                    resultsParamData.setText(function.getFunctionResults().get(functionIndex).getText());
                 }
                 StackPane resultsChildPane = new StackPane();
                 resultsChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
-                resultsChildPane.getChildren().add(new Text(resultsParamKey));
+                resultsChildPane.getChildren().add(resultsParamKey);
                 resultsChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                 functionGridPane.add(resultsChildPane, 0, row);
                 StackPane resultsChildPaneInfo = new StackPane();
-                resultsChildPaneInfo.getChildren().add(new Text(resultsParamData));
+                resultsChildPaneInfo.getChildren().add(resultsParamData);
                 resultsChildPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                 functionGridPane.add(resultsChildPaneInfo, 1, row);
                 row++;
-                double rowHeight = resultsChildPaneInfo.getHeight();
+                double rowHeight = resultsChildPaneInfo.getBoundsInParent().getHeight();
                 if (rowHeight < 25)
                     rowHeight = 25;
                 rowConstraint = new RowConstraints(rowHeight);
@@ -654,15 +721,10 @@ public class JTAFLibrary {
 
         //command in new window
         classWindowButton.setOnMouseClicked(event -> {
-            Stage commandWindow = new Stage();
-            VBox windowedVBox = new VBox();
-            StackPane windowedFunctionHeader = createBoxHeader(function.getFunctionName(),25, Color.DARKBLUE);
-            GridPane windowedCommand = createFunctionGridPane(function);
-            windowedCommand.setVisible(true);
-            windowedCommand.setManaged(true);
-            windowedVBox.getChildren().addAll(windowedFunctionHeader, windowedCommand);
-            commandWindow.setScene(new Scene(windowedVBox,300,windowedCommand.getPrefHeight()));
-            commandWindow.show();
+            Stage windowStage = functionWindows.get(function.getFunctionName());
+            if (windowStage.isShowing())
+                windowStage.close();
+            windowStage.show();
         });
 
         functionHeader.setOnMouseEntered(event -> {
@@ -692,4 +754,44 @@ public class JTAFLibrary {
         });
     }
 
+    public HashMap<String, ArrayList<StackPane>> getLibraryBodyPanes() {
+        return this.libraryBodyPanes;
+    }
+
+    public HashMap<String, ArrayList<StackPane>> getWindowedLibraryBodyPanes() {
+        return this.windowedLibraryBodyPanes;
+    }
+
+    public void createCommandWindows(Command command) {
+        Stage windowStage = new Stage();
+        VBox windowedVBox = new VBox();
+        StackPane windowedCommandHeader = createBoxHeader(command.getCommandName(),25, Color.DARKBLUE);
+        GridPane windowedCommand = createCommandGridPane(command);
+        windowedCommand.setVisible(true);
+        windowedCommand.setManaged(true);
+        windowedVBox.getChildren().addAll(windowedCommandHeader, windowedCommand);
+        windowStage.setScene(new Scene(windowedVBox,300,windowedCommand.getPrefHeight()));
+        commandWindows.put(command.getCommandName(),windowStage);
+    }
+
+    public void createFunctionWindows(Function function) {
+        Stage windowStage = new Stage();
+        VBox windowedVBox = new VBox();
+        StackPane windowedFunctionHeader = createBoxHeader(function.getFunctionName(),25, Color.DARKBLUE);
+        GridPane windowedFunction = createFunctionGridPane(function, windowedLibraryBodyPanes);
+        windowedFunction.setVisible(true);
+        windowedFunction.setManaged(true);
+        windowedVBox.getChildren().addAll(windowedFunctionHeader, windowedFunction);
+        windowStage.setScene(new Scene(windowedVBox,300,windowedFunction.getPrefHeight()));
+        functionWindows.put(function.getFunctionName(), windowStage);
+    }
+
+
+    public HashMap<String, Stage> getCommandWindows() {
+        return this.commandWindows;
+    }
+
+    public HashMap<String, Stage> getFunctionWindows() {
+        return this.functionWindows;
+    }
 }
