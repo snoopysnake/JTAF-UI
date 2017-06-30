@@ -7,7 +7,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.DropShadow;
@@ -18,7 +17,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.xml.sax.SAXException;
 
@@ -31,6 +29,9 @@ import java.util.HashMap;
  * Created by Michael on 06/29/2017.
  */
 public class JTAFLibrary {
+    public double LIBRARY_TOTAL_WIDTH = 1000;
+    public double LIBRARY_KEY_WIDTH = 400;
+    public double LIBRARY_DATA_WIDTH = 600;
     private ScrollPane libraryPane;
     private HashMap<String, Stage> commandWindows = new HashMap<>();
     private HashMap<String, Stage> functionWindows = new HashMap<>();
@@ -41,11 +42,12 @@ public class JTAFLibrary {
         libraryPane = new ScrollPane();
         libraryPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         libraryPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+//        libraryPane.set
         VBox libraryBox = new VBox();
         VBox commandBox = new VBox();
         VBox functionBox = new VBox();
 
-        libraryBox.setPrefWidth(800);
+        libraryBox.setPrefWidth(LIBRARY_TOTAL_WIDTH);
         libraryBox.setPrefHeight(600);
 
         LibraryParser libraryParser = new LibraryParser(libraryPath);
@@ -124,7 +126,7 @@ public class JTAFLibrary {
         boxHeaderLabel.setTextFill(Color.WHITE);
         boxHeaderLabel.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY))); //make color coded
         boxHeaderLabel.setFont(new Font("Arial", fontSize));
-        boxHeaderLabel.setPrefWidth(800);
+        boxHeaderLabel.setPrefWidth(LIBRARY_TOTAL_WIDTH);
         boxHeader.getChildren().add(boxHeaderLabel);
         return boxHeader;
     }
@@ -137,7 +139,7 @@ public class JTAFLibrary {
         libraryHeaderLabel.setTextFill(Color.WHITE);
         libraryHeaderLabel.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY))); //make color coded
         libraryHeaderLabel.setFont(new Font("Arial", 20));
-        libraryHeaderLabel.setPrefWidth(800);
+        libraryHeaderLabel.setPrefWidth(LIBRARY_TOTAL_WIDTH);
         libraryHeader.getChildren().add(libraryHeaderLabel);
 
         Button classWindowButton = new Button();
@@ -157,9 +159,9 @@ public class JTAFLibrary {
         final GridPane commandGridPane = new GridPane();
         commandGridPane.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
         ColumnConstraints col1 = new ColumnConstraints();
-        col1.setPrefWidth(300);
+        col1.setPrefWidth(LIBRARY_KEY_WIDTH);
         ColumnConstraints col2 = new ColumnConstraints();
-        col2.setPrefWidth(500);
+        col2.setPrefWidth(LIBRARY_DATA_WIDTH);
         commandGridPane.getColumnConstraints().addAll(col1,col2);
 
         int row = 0;
@@ -188,7 +190,7 @@ public class JTAFLibrary {
             commandGridPane.add(usagePane, 0, row);
             StackPane usagePaneInfo = new StackPane();
             Text commandUsageText = new Text(command.getCommandUsage().trim());
-            commandUsageText.setWrappingWidth(500);
+            commandUsageText.setWrappingWidth(LIBRARY_DATA_WIDTH-10);
             commandUsageText.setTextAlignment(TextAlignment.CENTER);
             usagePaneInfo.getChildren().add(commandUsageText); //should make height variable
             usagePaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
@@ -232,7 +234,7 @@ public class JTAFLibrary {
                 }
                 if (i % 3 == 2) {
                     requiredParamKey.setText("Text");
-                    requiredParamData.setWrappingWidth(500);
+                    requiredParamData.setWrappingWidth(LIBRARY_DATA_WIDTH-10);
                     requiredParamData.setTextAlignment(TextAlignment.CENTER);
                     requiredParamData.setText(command.getRequiredParameters().get(commandIndex).getText());
                 }
@@ -286,7 +288,7 @@ public class JTAFLibrary {
                 }
                 if (i % 3 == 2) {
                     optionalParamKey.setText("Text");
-                    optionalParamData.setWrappingWidth(500);
+                    optionalParamData.setWrappingWidth(LIBRARY_DATA_WIDTH-10);
                     optionalParamData.setTextAlignment(TextAlignment.CENTER);
                     optionalParamData.setText(command.getOptionalParameters().get(commandIndex).getText());
                 }
@@ -341,7 +343,7 @@ public class JTAFLibrary {
                 }
                 if (i % 3 == 2) {
                     resultsParamKey.setText("Text");
-                    resultsParamData.setWrappingWidth(500);
+                    resultsParamData.setWrappingWidth(LIBRARY_DATA_WIDTH-10);
                     resultsParamData.setTextAlignment(TextAlignment.CENTER);
                     resultsParamData.setText(command.getCommandResults().get(commandIndex).getText());
                 }
@@ -366,7 +368,7 @@ public class JTAFLibrary {
             }
         }
         commandGridPane.setAlignment(Pos.CENTER);
-        commandGridPane.setPrefSize(800, height);
+        commandGridPane.setPrefSize(LIBRARY_TOTAL_WIDTH, height);
         commandGridPane.setVisible(false);
         commandGridPane.setManaged(false);
 
@@ -400,6 +402,7 @@ public class JTAFLibrary {
         //command in new window
         classWindowButton.setOnMouseClicked(event -> {
             Stage windowStage = commandWindows.get(command.getCommandName());
+            windowStage.setTitle(command.getCommandName());
             if (windowStage.isShowing())
                 windowStage.close();
             windowStage.show();
@@ -454,9 +457,9 @@ public class JTAFLibrary {
         final GridPane functionGridPane = new GridPane();
         functionGridPane.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
         ColumnConstraints col1 = new ColumnConstraints();
-        col1.setPrefWidth(300);
+        col1.setPrefWidth(LIBRARY_KEY_WIDTH);
         ColumnConstraints col2 = new ColumnConstraints();
-        col2.setPrefWidth(500);
+        col2.setPrefWidth(LIBRARY_DATA_WIDTH);
         functionGridPane.getColumnConstraints().addAll(col1,col2);
 
         int row = 0;
@@ -471,7 +474,7 @@ public class JTAFLibrary {
             functionGridPane.add(usagePane, 0, row);
             StackPane usagePaneInfo = new StackPane();
             Text functionUsageText = new Text(function.getFunctionUsage().trim());
-            functionUsageText.setWrappingWidth(500);
+            functionUsageText.setWrappingWidth(LIBRARY_DATA_WIDTH-10);
             functionUsageText.setTextAlignment(TextAlignment.CENTER);
             usagePaneInfo.getChildren().add(functionUsageText); //should make height variable
             usagePaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
@@ -515,7 +518,7 @@ public class JTAFLibrary {
                 }
                 if (i % 3 == 2) {
                     requiredParamKey.setText("Text");
-                    requiredParamData.setWrappingWidth(500);
+                    requiredParamData.setWrappingWidth(LIBRARY_DATA_WIDTH-10);
                     requiredParamData.setTextAlignment(TextAlignment.CENTER);
                     requiredParamData.setText(function.getRequiredParameters().get(functionIndex).getText());
                 }
@@ -569,7 +572,7 @@ public class JTAFLibrary {
                 }
                 if (i % 3 == 2) {
                     optionalParamKey.setText("Text");
-                    optionalParamData.setWrappingWidth(500);
+                    optionalParamData.setWrappingWidth(LIBRARY_DATA_WIDTH-10);
                     optionalParamData.setTextAlignment(TextAlignment.CENTER);
                     optionalParamData.setText(function.getOptionalParameters().get(functionIndex).getText());
                 }
@@ -616,7 +619,10 @@ public class JTAFLibrary {
                 String functionBodyCommandName = function.getFunctionBody().get(i);
                 StackPane functionBodyChildPane = new StackPane();
                 functionBodyChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
-                functionBodyChildPane.getChildren().add(new Text(functionBodyCommandName));
+                Text functionBodyCommandNameText = new Text(functionBodyCommandName);
+                functionBodyCommandNameText.setWrappingWidth(LIBRARY_KEY_WIDTH-10);
+                functionBodyCommandNameText.setTextAlignment(TextAlignment.CENTER);
+                functionBodyChildPane.getChildren().add(functionBodyCommandNameText);
                 functionBodyChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                 bodyPanes.add(functionBodyChildPane);
@@ -627,7 +633,10 @@ public class JTAFLibrary {
                 bodyPanes.add(functionBodyChildPaneInfo);
                 functionGridPane.add(functionBodyChildPaneInfo, 1, row);
                 row++;
-                rowConstraint = new RowConstraints(25);
+                double rowHeight = functionBodyChildPane.getBoundsInParent().getHeight();
+                if (rowHeight < 30)
+                    rowHeight = 30;
+                rowConstraint = new RowConstraints(rowHeight);
                 functionGridPane.getRowConstraints().add(rowConstraint);
                 height += rowConstraint.getMaxHeight();
             }
@@ -663,7 +672,7 @@ public class JTAFLibrary {
                 }
                 if (i % 3 == 2) {
                     resultsParamKey.setText("Text");
-                    resultsParamData.setWrappingWidth(500);
+                    resultsParamData.setWrappingWidth(LIBRARY_DATA_WIDTH-10);
                     resultsParamData.setTextAlignment(TextAlignment.CENTER);
                     resultsParamData.setText(function.getFunctionResults().get(functionIndex).getText());
                 }
@@ -688,7 +697,7 @@ public class JTAFLibrary {
             }
         }
         functionGridPane.setAlignment(Pos.CENTER);
-        functionGridPane.setPrefSize(800, height);
+        functionGridPane.setPrefSize(LIBRARY_TOTAL_WIDTH, height);
         functionGridPane.setVisible(false);
         functionGridPane.setManaged(false);
 
@@ -719,9 +728,10 @@ public class JTAFLibrary {
             imgView.setEffect(null);
         });
 
-        //command in new window
+        //function in new window
         classWindowButton.setOnMouseClicked(event -> {
             Stage windowStage = functionWindows.get(function.getFunctionName());
+            windowStage.setTitle(function.getFunctionName());
             if (windowStage.isShowing())
                 windowStage.close();
             windowStage.show();
@@ -770,7 +780,7 @@ public class JTAFLibrary {
         windowedCommand.setVisible(true);
         windowedCommand.setManaged(true);
         windowedVBox.getChildren().addAll(windowedCommandHeader, windowedCommand);
-        windowStage.setScene(new Scene(windowedVBox,300,windowedCommand.getPrefHeight()));
+        windowStage.setScene(new Scene(windowedVBox,LIBRARY_TOTAL_WIDTH,windowedCommand.getPrefHeight()));
         commandWindows.put(command.getCommandName(),windowStage);
     }
 
@@ -782,7 +792,7 @@ public class JTAFLibrary {
         windowedFunction.setVisible(true);
         windowedFunction.setManaged(true);
         windowedVBox.getChildren().addAll(windowedFunctionHeader, windowedFunction);
-        windowStage.setScene(new Scene(windowedVBox,300,windowedFunction.getPrefHeight()));
+        windowStage.setScene(new Scene(windowedVBox,LIBRARY_TOTAL_WIDTH,windowedFunction.getPrefHeight()));
         functionWindows.put(function.getFunctionName(), windowStage);
     }
 

@@ -2,6 +2,7 @@ package sample;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.*;
@@ -12,15 +13,20 @@ import javafx.scene.text.Font;
  * Created by Michael on 06/29/2017.
  */
 public class JTAFHeader {
-    HBox headerBox;
-    public JTAFHeader() {
+    public double HEADER_TOTAL_WIDTH;
+
+    private HBox headerBox;
+    public JTAFHeader(double libraryWidth) {
+        HEADER_TOTAL_WIDTH = libraryWidth;
         headerBox = new HBox();
         VBox headerRightHalfBox = new VBox();
         HBox headerLeftHalfBox = new HBox();
-        HBox tabBarBox = new HBox();
+        HBox tabsBox = new HBox();
+        BorderPane tabBarPane = new BorderPane();
+        tabBarPane.setPrefHeight(50);
 
         headerRightHalfBox.setBackground(new Background(new BackgroundFill(Color.BLUE, CornerRadii.EMPTY, Insets.EMPTY)));
-        headerRightHalfBox.setPrefWidth(800);
+        headerRightHalfBox.setPrefWidth(HEADER_TOTAL_WIDTH);
 
         Label logo = new Label("LOGO"); //TODO: change to png
         logo.setPrefWidth(200); //same as directory/scrollpane
@@ -47,19 +53,28 @@ public class JTAFHeader {
         tabButton2.setText("Something1");
         tabButton2.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
         tabButton2.setPrefHeight(50);
+        tabButton1.setAlignment(Pos.BOTTOM_LEFT);
+        tabButton2.setAlignment(Pos.BOTTOM_LEFT);
+        tabsBox.getChildren().addAll(tabButton1,tabButton2);
 
-        tabBarBox.getChildren().addAll(tabButton1,tabButton2);
-        tabBarBox.setAlignment(Pos.BOTTOM_LEFT);
+
+        HBox searchBarBox = new HBox();
+        Button temp = new Button("search");
+        searchBarBox.getChildren().add(temp);
+        searchBarBox.setAlignment(Pos.BOTTOM_RIGHT);
+
+        tabBarPane.setRight(searchBarBox);
+        tabBarPane.setLeft(tabsBox);
 
         StackPane libraryNamePane = new StackPane(); //Important
         Label headerLabel = new Label("");
         headerLabel.setTextFill(Color.WHITE);
         headerLabel.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY))); //make color coded
         headerLabel.setFont(new Font("Arial", 30));
-        headerLabel.setPrefWidth(800);
-        libraryNamePane.getChildren().add(headerLabel);
+        headerLabel.setPrefWidth(HEADER_TOTAL_WIDTH);
 
-        headerRightHalfBox.getChildren().add(tabBarBox);
+        libraryNamePane.getChildren().add(headerLabel);
+        headerRightHalfBox.getChildren().add(tabBarPane);
         headerRightHalfBox.getChildren().add(libraryNamePane);
         headerRightHalfBox.setAlignment(Pos.BOTTOM_LEFT);
 
