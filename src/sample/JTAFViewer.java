@@ -194,8 +194,9 @@ public class JTAFViewer extends Stage {
         //HBox -> VBox -> BorderPane -> HBox
         VBox headerRightHalfBox = (VBox) headerBox.getChildren().get(1);
         BorderPane tabBarPane = (BorderPane) headerRightHalfBox.getChildren().get(0);
-        HBox tabBarBox = (HBox) tabBarPane.getChildren().get(0);
+        HBox tabBarBox = (HBox) tabBarPane.getChildren().get(1);
 
+        System.out.println(tabBarBox.getChildren());
         for (Node node : tabBarBox.getChildren()) {
             if (node.getClass().equals(ToggleButton.class)) {
                 ToggleButton tabButton = (ToggleButton) node;
