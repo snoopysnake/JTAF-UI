@@ -1,5 +1,6 @@
 package sample;
 
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * Created by Alex on 6/23/2017.
@@ -82,12 +84,14 @@ public class JTAFViewer extends Stage {
 
         JTAFHeader jtafHeader = new JTAFHeader(LIBRARY_TOTAL_WIDTH);
         HBox headerBox = jtafHeader.getHeaderBox();
+        HBox tabsBox = jtafHeader.getTabsBox();
+        Label headerLabel = jtafHeader.getHeaderLabel();
         this.HEADER_COLOR = jtafHeader.HEADER_COLOR;
         this.HEADER_UNSELECTED_COLOR = jtafHeader.HEADER_UNSELECTED_COLOR;
 
-        setDirectoryEvents(defaultBorderPane, headerBox, directoryPane, testLibraryMap);
-        setTabEvents(defaultBorderPane, headerBox, directoryPane);
-        setSearchBarEvents(jtafHeader.getSearchBarBox());
+        setTestLibraryDirectoryEvents(defaultBorderPane, headerLabel, directoryPane, testLibraryMap);
+        setTabEvents(defaultBorderPane, tabsBox, directoryPane);
+        setSearchBarEvents(defaultBorderPane, jtafHeader.getSearchBarBox(), directoryPane, testLibraryMap);
 
         defaultBorderPane.setTop(headerBox);
         defaultBorderPane.setCenter(emptyLibraryPane);
@@ -152,24 +156,21 @@ public class JTAFViewer extends Stage {
         }
     }
 
-    public void setDirectoryEvents(BorderPane defaultBorderPane, HBox headerBox, ScrollPane directoryPane,
+    //set pane events
+    public void setTestLibraryDirectoryEvents(BorderPane defaultBorderPane, Label headerLabel, ScrollPane directoryPane,
                                    HashMap<String, ScrollPane> testLibraryMap) {
         VBox directoryVBox = (VBox) directoryPane.getContent();
 
-        VBox headerRightHalfBox = (VBox) headerBox.getChildren().get(1);
-        StackPane libraryNamePane = (StackPane) headerRightHalfBox.getChildren().get(1);
-        Label headerLabel = (Label) libraryNamePane.getChildren().get(0);
-
         for (Node node : directoryVBox.getChildren()) {
             ToggleButton libraryPathButton = (ToggleButton) node;
-            libraryPathButton.setOnMouseClicked(event -> {
+            libraryPathButton.setOnAction(event -> {
                 toggleUnselectAll(libraryPathButton, directoryVBox.getChildren());
                 toggleSelect(libraryPathButton);
-                if (testLibraryMap.containsKey(libraryPathButton.getText())) {
+//                if (testLibraryMap.containsKey(libraryPathButton.getText())) {
                     headerLabel.setText(libraryPathButton.getText()); //changes label in header
                     defaultBorderPane.setCenter(testLibraryMap.get(libraryPathButton.getText()));
                     centerState[0] = testLibraryMap.get(libraryPathButton.getText());
-                }
+//                }
 
                 if (!libraryPathButton.isSelected()) {
                     libraryPathButton.setSelected(true);
@@ -178,18 +179,15 @@ public class JTAFViewer extends Stage {
         }
     }
 
-    public void setTabEvents(BorderPane defaultBorderPane, HBox headerBox, ScrollPane directoryPane) {
+    public void setTabEvents(BorderPane defaultBorderPane, HBox tabsBox, ScrollPane directoryPane) {
         //HBox -> VBox -> BorderPane -> HBox
-        VBox headerRightHalfBox = (VBox) headerBox.getChildren().get(1);
-        BorderPane tabBarPane = (BorderPane) headerRightHalfBox.getChildren().get(0);
-        HBox tabBarBox = (HBox) tabBarPane.getChildren().get(1);
 
-        for (Node node : tabBarBox.getChildren()) {
+        for (Node node : tabsBox.getChildren()) {
             if (node.getClass().equals(ToggleButton.class)) {
                 ToggleButton tabButton = (ToggleButton) node;
                 tabButton.setOnMouseClicked(event -> {
                     //unselect everything else
-                    toggleUnselectAll(tabButton, tabBarBox.getChildren());
+                    toggleUnselectAll(tabButton, tabsBox.getChildren());
                     //select tabButton
                     toggleSelect(tabButton);
                     if (tabButton.getText().equals("Test Library")) {
@@ -210,17 +208,32 @@ public class JTAFViewer extends Stage {
         }
     }
 
-    public void setSearchBarEvents(HBox searchBarBox) {
+    public void setSearchBarEvents(BorderPane defaultBorderPane, HBox searchBarBox,
+                                   ScrollPane directoryPane, HashMap<String, ScrollPane> testLibraryMap) {
+        VBox directoryVBox = (VBox) directoryPane.getContent();
+
         TextField searchTextField = (TextField) searchBarBox.getChildren().get(0);
         Button searchButton = (Button) searchBarBox.getChildren().get(1);
 
         searchTextField.setOnKeyPressed(event -> {
             if (event.getCode().equals(KeyCode.ENTER)) {
-                if (!searchTextField.getText().isEmpty()) {
-                    System.out.println("Searched for: "+searchTextField.getText());
-                    if(searchTestLibrary(searchTextField.getText())) {
-                        System.out.println(searchTextField.getText()+" found!");
-                        getSearchResult();
+                String searchedName = searchTextField.getText();
+                if (!searchedName.isEmpty()) {
+                    System.out.println("Searched for: "+searchedName);
+                    String libraryName = searchTestLibrary(searchedName);
+                    if(!libraryName.isEmpty()) {
+                        defaultBorderPane.setCenter(testLibraryMap.get(libraryName));
+                        centerState[0] = testLibraryMap.get(libraryName);
+                        System.out.println(searchedName +" found in "+libraryName+"!");
+                        getSearchResult(testLibraryMap, libraryName, searchedName);
+                        //update header and directory
+                        for (Node node : directoryVBox.getChildren()) {
+                            ToggleButton libraryPathButton = (ToggleButton) node;
+                            if (libraryPathButton.getText().equals(libraryName)) {
+                                libraryPathButton.fire();
+                                break;
+                            }
+                        }
                     } else {
                         //set scrollpane as empty.
                     }
@@ -244,25 +257,62 @@ public class JTAFViewer extends Stage {
 //            tabButtonLabel1.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
     }
 
-    public boolean searchTestLibrary(String name) {
+    public String searchTestLibrary(String name) {
         name = name.toLowerCase();
         name = name.trim();
         if (name.endsWith(".xml")) {
             name = name.substring(0, name.length()-4);
-            System.out.println(name);
         }
         for (String libraryName : totalTestLibrary.keySet()) {
-            ArrayList<String> commandsNames = totalTestLibrary.get(libraryName);
-            for (String command : commandsNames) {
-                if (name.equalsIgnoreCase(command)) {
-                    return true;
+            ArrayList<String> testLibraryChildren = totalTestLibrary.get(libraryName);
+            for (String child : testLibraryChildren) {
+                if (name.equalsIgnoreCase(child)) {
+                    return libraryName;
                 }
             }
         }
-        return false;
+        return "";
     }
 
-    public void getSearchResult() {
-
+    public void getSearchResult(HashMap<String, ScrollPane> testLibraryMap, String libraryName, String searchedName) {
+        //ScrollPane -> VBox -> VBox -> StackPane
+        ScrollPane libraryPane = testLibraryMap.get(libraryName);
+        VBox libraryBox = (VBox) libraryPane.getContent();
+        VBox commandBox = (VBox) libraryBox.getChildren().get(0);
+        VBox functionBox = (VBox) libraryBox.getChildren().get(1);
+        if (!commandBox.getChildren().isEmpty()) {
+            for (int i = 1; i < commandBox.getChildren().size(); i++) {
+                if (commandBox.getChildren().get(i).getClass().equals(StackPane.class)) {
+                    StackPane commandHeader = (StackPane) commandBox.getChildren().get(i);
+                    Text commandHeaderText = (Text) commandHeader.getChildren().get(0);
+                    if(commandHeaderText.getText().equalsIgnoreCase(searchedName)) {
+                        //TODO
+                        System.out.println(commandHeaderText.getText());
+//                        System.out.println(commandHeader.getBoundsInParent().getMinY());
+                    }
+                }
+            }
+        }
+        if (!functionBox.getChildren().isEmpty()) {
+            for (int i = 1; i < functionBox.getChildren().size(); i++) {
+                if (functionBox.getChildren().get(i).getClass().equals(StackPane.class)) {
+                    StackPane functionHeader = (StackPane) functionBox.getChildren().get(i);
+                    Text functionHeaderText = (Text) functionHeader.getChildren().get(0);
+                    if(functionHeaderText.getText().equalsIgnoreCase(searchedName)) {
+                        System.out.println(functionHeaderText.getText());
+                    }
+                }
+            }
+        }
     }
+
+    public void minimizeCommands(VBox commandBox) {
+        for (Node node : commandBox.getChildren()) {
+            if (node.getClass().equals(GridPane.class)) {
+                node.setVisible(false);
+                node.setManaged(false);
+            }
+        }
+    }
+
 }

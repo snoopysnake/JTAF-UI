@@ -21,13 +21,15 @@ public class JTAFHeader {
     public String FINRA_FONT = "Georgia";
 
     private HBox headerBox;
+    private Label headerLabel;
     private HBox searchBarBox;
+    private HBox tabsBox;
     public JTAFHeader(double libraryWidth) {
         this.HEADER_TOTAL_WIDTH = libraryWidth;
         headerBox = new HBox();
         VBox headerRightHalfBox = new VBox();
         HBox headerLeftHalfBox = new HBox();
-        HBox tabsBox = new HBox();
+        tabsBox = new HBox();
         BorderPane tabBarPane = new BorderPane();
         tabBarPane.setPrefHeight(50);
 
@@ -77,7 +79,7 @@ public class JTAFHeader {
         tabBarPane.setLeft(tabsBox);
 
         StackPane libraryNamePane = new StackPane(); //Important
-        Label headerLabel = new Label("");
+        headerLabel = new Label("");
         headerLabel.setPadding(new Insets(5));
         headerLabel.setTextFill(Color.WHITE);
         headerLabel.setBackground(new Background(new BackgroundFill(HEADER_COLOR, CornerRadii.EMPTY, Insets.EMPTY))); //make color coded
@@ -98,5 +100,13 @@ public class JTAFHeader {
 
     public HBox getSearchBarBox() {
         return this.searchBarBox;
+    }
+
+    public HBox getTabsBox() {
+        return this.tabsBox;
+    }
+
+    public Label getHeaderLabel() {
+        return this.headerLabel;
     }
 }
