@@ -32,7 +32,14 @@ public class JTAFLibrary {
     public double LIBRARY_TOTAL_WIDTH = 1000;
     public double LIBRARY_KEY_WIDTH = 400;
     public double LIBRARY_DATA_WIDTH = 600;
+    public Color CATEGORY_HEADER_COLOR = Color.DARKBLUE;
+    public Color LIBRARY_HEADER_COLOR = Color.BLACK;
+    public Color LIBRARY_HEADER_UNSELECTED_COLOR = Color.GRAY;
+    public Color LIBRARY_ATTRIBUTE = Color.PURPLE;
+    public Color LIBRARY_ATTRIBUTE_CHILD = Color.SKYBLUE;
+    public String FINRA_FONT = "Georgia";
     private ScrollPane libraryPane;
+    private ArrayList<String> library = new ArrayList<>();
     private HashMap<String, Stage> commandWindows = new HashMap<>();
     private HashMap<String, Stage> functionWindows = new HashMap<>();
     private HashMap<String, ArrayList<StackPane>> libraryBodyPanes = new HashMap<>();
@@ -55,7 +62,7 @@ public class JTAFLibrary {
         ArrayList<Function> functions = libraryParser.getFunctions();
 
         if(!commands.isEmpty()) {
-            StackPane commandBoxHeader = createBoxHeader("COMMANDS",25, Color.DARKBLUE);
+            StackPane commandBoxHeader = createCategoryHeader("COMMANDS",25, CATEGORY_HEADER_COLOR);
             commandBox.getChildren().add(commandBoxHeader);
             for (int i = 0; i < commands.size(); i++) {
                 Command command = commands.get(i);
@@ -65,6 +72,7 @@ public class JTAFLibrary {
                 commandMouseEffects(commandHeader, commandGridPane, command);
                 commandBox.getChildren().add(commandHeader);
                 commandBox.getChildren().add(commandGridPane);
+                library.add(command.getCommandName());
             }
 
             //commands header
@@ -83,7 +91,7 @@ public class JTAFLibrary {
             });
         }
         if(!functions.isEmpty()) {
-            StackPane functionBoxHeader = createBoxHeader("FUNCTIONS",25,Color.DARKBLUE);
+            StackPane functionBoxHeader = createCategoryHeader("FUNCTIONS",25,CATEGORY_HEADER_COLOR);
             functionBox.getChildren().add(functionBoxHeader);
             for (int i = 0; i < libraryParser.getFunctions().size(); i++) {
                 Function function = functions.get(i);
@@ -93,6 +101,7 @@ public class JTAFLibrary {
                 functionMouseEffects(functionHeader, functionGridPane, function);
                 functionBox.getChildren().add(functionHeader);
                 functionBox.getChildren().add(functionGridPane);
+                library.add(function.getFunctionName());
             }
             //functions header
             functionBoxHeader.setOnMouseClicked(event -> {
@@ -119,28 +128,35 @@ public class JTAFLibrary {
         return this.libraryPane;
     }
 
-    public StackPane createBoxHeader(String name, int fontSize, Color color) {
-        StackPane boxHeader = new StackPane();
+    public StackPane createCategoryHeader(String name, int fontSize, Color color) {
+        StackPane categoryHeader = new StackPane();
 
-        Label boxHeaderLabel = new Label(name);
-        boxHeaderLabel.setTextFill(Color.WHITE);
-        boxHeaderLabel.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY))); //make color coded
-        boxHeaderLabel.setFont(new Font("Arial", fontSize));
-        boxHeaderLabel.setPrefWidth(LIBRARY_TOTAL_WIDTH);
-        boxHeader.getChildren().add(boxHeaderLabel);
-        return boxHeader;
+        Label categoryHeaderLabel = new Label(name);
+        categoryHeaderLabel.setTextFill(Color.WHITE);
+        categoryHeaderLabel.setPadding(new Insets(7));
+        categoryHeaderLabel.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY))); //make color coded
+        categoryHeaderLabel.setFont(new Font(FINRA_FONT, fontSize));
+        categoryHeaderLabel.setPrefWidth(LIBRARY_TOTAL_WIDTH);
+        categoryHeader.getChildren().add(categoryHeaderLabel);
+        return categoryHeader;
     }
 
     public StackPane createLibraryHeader(String name) {
         StackPane libraryHeader = new StackPane();
         libraryHeader.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
-        Label libraryHeaderLabel = new Label(name);
-        libraryHeaderLabel.setTextFill(Color.WHITE);
-        libraryHeaderLabel.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY))); //make color coded
-        libraryHeaderLabel.setFont(new Font("Arial", 20));
-        libraryHeaderLabel.setPrefWidth(LIBRARY_TOTAL_WIDTH);
-        libraryHeader.getChildren().add(libraryHeaderLabel);
+//        Label libraryHeaderLabel = new Label(name);
+//        libraryHeaderLabel.setTextFill(Color.WHITE);
+//        libraryHeaderLabel.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY))); //make color coded
+//        libraryHeaderLabel.setFont(new Font("Arial", 20));
+//        libraryHeaderLabel.setPrefWidth(LIBRARY_TOTAL_WIDTH);
+        Text libraryHeaderText = new Text(name);
+        libraryHeader.setAlignment(Pos.CENTER_LEFT);
+        libraryHeader.setPadding(new Insets(5,5,5,7));
+        libraryHeaderText.setFill(Color.WHITE);
+        libraryHeaderText.setFont(new Font(FINRA_FONT, 20));
+        libraryHeader.setPrefWidth(LIBRARY_TOTAL_WIDTH);
+        libraryHeader.getChildren().add(libraryHeaderText);
 
         Button classWindowButton = new Button();
         Image img = new Image(getClass().getResourceAsStream("images\\ic_open_in_new_white_12dp.png"));
@@ -167,7 +183,7 @@ public class JTAFLibrary {
         int row = 0;
         int height = 0;
         StackPane classPane = new StackPane();
-        classPane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+        classPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE, CornerRadii.EMPTY, Insets.EMPTY)));
         classPane.getChildren().add(new Text("Class"));
         classPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                 BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
@@ -183,7 +199,7 @@ public class JTAFLibrary {
         height+=rowConstraint.getMaxHeight();
         if (command.hasCommandUsage()) {
             StackPane usagePane = new StackPane();
-            usagePane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+            usagePane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE, CornerRadii.EMPTY, Insets.EMPTY)));
             usagePane.getChildren().add(new Text("Usage"));
             usagePane.setBorder(new Border(new BorderStroke(Color.BLACK,
                     BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
@@ -206,7 +222,7 @@ public class JTAFLibrary {
         }
         if (command.hasRequiredParameters()) {
             StackPane requiredParamPane = new StackPane();
-            requiredParamPane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+            requiredParamPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE, CornerRadii.EMPTY, Insets.EMPTY)));
             requiredParamPane.getChildren().add(new Text("Required Parameters"));
             requiredParamPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                     BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
@@ -239,7 +255,7 @@ public class JTAFLibrary {
                     requiredParamData.setText(command.getRequiredParameters().get(commandIndex).getText());
                 }
                 StackPane requiredParamChildPane = new StackPane();
-                requiredParamChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+                requiredParamChildPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE_CHILD, CornerRadii.EMPTY, Insets.EMPTY)));
                 requiredParamChildPane.getChildren().add(requiredParamKey);
                 requiredParamChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
@@ -260,7 +276,7 @@ public class JTAFLibrary {
         }
         if (command.hasOptionalParameters()) {
             StackPane optionalParamPane = new StackPane();
-            optionalParamPane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+            optionalParamPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE, CornerRadii.EMPTY, Insets.EMPTY)));
             optionalParamPane.getChildren().add(new Text("Optional Parameters"));
             optionalParamPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                     BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
@@ -293,7 +309,7 @@ public class JTAFLibrary {
                     optionalParamData.setText(command.getOptionalParameters().get(commandIndex).getText());
                 }
                 StackPane optionalParamChildPane = new StackPane();
-                optionalParamChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+                optionalParamChildPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE_CHILD, CornerRadii.EMPTY, Insets.EMPTY)));
                 optionalParamChildPane.getChildren().add(optionalParamKey);
                 optionalParamChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
@@ -314,7 +330,7 @@ public class JTAFLibrary {
         }
         if (command.hasCommandResults()) {
             StackPane resultsPane = new StackPane();
-            resultsPane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+            resultsPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE, CornerRadii.EMPTY, Insets.EMPTY)));
             resultsPane.getChildren().add(new Text("Produces"));
             resultsPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                     BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
@@ -348,7 +364,7 @@ public class JTAFLibrary {
                     resultsParamData.setText(command.getCommandResults().get(commandIndex).getText());
                 }
                 StackPane resultsChildPane = new StackPane();
-                resultsChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+                resultsChildPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE_CHILD, CornerRadii.EMPTY, Insets.EMPTY)));
                 resultsChildPane.getChildren().add(resultsParamKey);
                 resultsChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
@@ -388,7 +404,7 @@ public class JTAFLibrary {
         glow.setWidth(25);
         glow.setHeight(25);
 
-        Label commandLabel = (Label) commandHeader.getChildren().get(0);
+        Text commandText = (Text) commandHeader.getChildren().get(0);
         Button classWindowButton = (Button) commandHeader.getChildren().get(1);
         ImageView imgView = (ImageView) classWindowButton.getGraphic();
 
@@ -410,16 +426,16 @@ public class JTAFLibrary {
 
         commandHeader.setOnMouseEntered(event -> {
                     commandHeader.setEffect(glow);
-                    commandHeader.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
-                    commandLabel.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
-                    classWindowButton.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+                    commandHeader.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+//                    commandLabel.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+                    classWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
                 }
         );
         commandHeader.setOnMouseExited(event -> {
                     commandHeader.setEffect(null);
-                    commandHeader.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-                    commandLabel.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-                    classWindowButton.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+                    commandHeader.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+//                    commandLabel.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+                    classWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
                 }
         );
 
@@ -467,7 +483,7 @@ public class JTAFLibrary {
         RowConstraints rowConstraint;
         if (function.hasFunctionUsage()) {
             StackPane usagePane = new StackPane();
-            usagePane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+            usagePane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE, CornerRadii.EMPTY, Insets.EMPTY)));
             usagePane.getChildren().add(new Text("Usage"));
             usagePane.setBorder(new Border(new BorderStroke(Color.BLACK,
                     BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
@@ -490,7 +506,7 @@ public class JTAFLibrary {
         }
         if (function.hasRequiredParameters()) {
             StackPane requiredParamPane = new StackPane();
-            requiredParamPane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+            requiredParamPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE, CornerRadii.EMPTY, Insets.EMPTY)));
             requiredParamPane.getChildren().add(new Text("Required Parameters"));
             requiredParamPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                     BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
@@ -523,7 +539,7 @@ public class JTAFLibrary {
                     requiredParamData.setText(function.getRequiredParameters().get(functionIndex).getText());
                 }
                 StackPane requiredParamChildPane = new StackPane();
-                requiredParamChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+                requiredParamChildPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE_CHILD, CornerRadii.EMPTY, Insets.EMPTY)));
                 requiredParamChildPane.getChildren().add(requiredParamKey);
                 requiredParamChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
@@ -544,7 +560,7 @@ public class JTAFLibrary {
         }
         if (function.hasOptionalParameters()) {
             StackPane optionalParamPane = new StackPane();
-            optionalParamPane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+            optionalParamPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE, CornerRadii.EMPTY, Insets.EMPTY)));
             optionalParamPane.getChildren().add(new Text("Optional Parameters"));
             optionalParamPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                     BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
@@ -577,7 +593,7 @@ public class JTAFLibrary {
                     optionalParamData.setText(function.getOptionalParameters().get(functionIndex).getText());
                 }
                 StackPane optionalParamChildPane = new StackPane();
-                optionalParamChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+                optionalParamChildPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE_CHILD, CornerRadii.EMPTY, Insets.EMPTY)));
                 optionalParamChildPane.getChildren().add(optionalParamKey);
                 optionalParamChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
@@ -599,7 +615,7 @@ public class JTAFLibrary {
         if (function.hasFunctionBody()) {
             ArrayList<StackPane> bodyPanes = new ArrayList<>();
             StackPane functionBodyPane = new StackPane();
-            functionBodyPane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+            functionBodyPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE, CornerRadii.EMPTY, Insets.EMPTY)));
             functionBodyPane.getChildren().add(new Text("Body"));
             functionBodyPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                     BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
@@ -618,7 +634,7 @@ public class JTAFLibrary {
             for (int i = 0; i < function.getFunctionBody().size(); i++) {
                 String functionBodyCommandName = function.getFunctionBody().get(i);
                 StackPane functionBodyChildPane = new StackPane();
-                functionBodyChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+                functionBodyChildPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE_CHILD, CornerRadii.EMPTY, Insets.EMPTY)));
                 Text functionBodyCommandNameText = new Text(functionBodyCommandName);
                 functionBodyCommandNameText.setWrappingWidth(LIBRARY_KEY_WIDTH-10);
                 functionBodyCommandNameText.setTextAlignment(TextAlignment.CENTER);
@@ -644,7 +660,7 @@ public class JTAFLibrary {
         }
         if (function.hasFunctionResults()) {
             StackPane resultsPane = new StackPane();
-            resultsPane.setBackground(new Background(new BackgroundFill(Color.DEEPSKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+            resultsPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE, CornerRadii.EMPTY, Insets.EMPTY)));
             resultsPane.getChildren().add(new Text("Produces"));
             resultsPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                     BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
@@ -677,7 +693,7 @@ public class JTAFLibrary {
                     resultsParamData.setText(function.getFunctionResults().get(functionIndex).getText());
                 }
                 StackPane resultsChildPane = new StackPane();
-                resultsChildPane.setBackground(new Background(new BackgroundFill(Color.SKYBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+                resultsChildPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE_CHILD, CornerRadii.EMPTY, Insets.EMPTY)));
                 resultsChildPane.getChildren().add(resultsParamKey);
                 resultsChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
@@ -717,7 +733,7 @@ public class JTAFLibrary {
         glow.setWidth(25);
         glow.setHeight(25);
 
-        Label commandLabel = (Label) functionHeader.getChildren().get(0);
+        Text functionText = (Text) functionHeader.getChildren().get(0);
         Button classWindowButton = (Button) functionHeader.getChildren().get(1);
         ImageView imgView = (ImageView) classWindowButton.getGraphic();
 
@@ -739,16 +755,16 @@ public class JTAFLibrary {
 
         functionHeader.setOnMouseEntered(event -> {
                     functionHeader.setEffect(glow);
-                    functionHeader.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
-                    commandLabel.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
-                    classWindowButton.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+                    functionHeader.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+//                    commandLabel.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+                    classWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
                 }
         );
         functionHeader.setOnMouseExited(event -> {
                     functionHeader.setEffect(null);
-                    functionHeader.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-                    commandLabel.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-                    classWindowButton.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+                    functionHeader.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+//                    commandLabel.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+                    classWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
                 }
         );
 
@@ -775,7 +791,7 @@ public class JTAFLibrary {
     public void createCommandWindows(Command command) {
         Stage windowStage = new Stage();
         VBox windowedVBox = new VBox();
-        StackPane windowedCommandHeader = createBoxHeader(command.getCommandName(),25, Color.DARKBLUE);
+        StackPane windowedCommandHeader = createCategoryHeader(command.getCommandName(),25, LIBRARY_HEADER_COLOR);
         GridPane windowedCommand = createCommandGridPane(command);
         windowedCommand.setVisible(true);
         windowedCommand.setManaged(true);
@@ -787,7 +803,7 @@ public class JTAFLibrary {
     public void createFunctionWindows(Function function) {
         Stage windowStage = new Stage();
         VBox windowedVBox = new VBox();
-        StackPane windowedFunctionHeader = createBoxHeader(function.getFunctionName(),25, Color.DARKBLUE);
+        StackPane windowedFunctionHeader = createCategoryHeader(function.getFunctionName(),25, LIBRARY_HEADER_COLOR);
         GridPane windowedFunction = createFunctionGridPane(function, windowedLibraryBodyPanes);
         windowedFunction.setVisible(true);
         windowedFunction.setManaged(true);
@@ -803,5 +819,9 @@ public class JTAFLibrary {
 
     public HashMap<String, Stage> getFunctionWindows() {
         return this.functionWindows;
+    }
+
+    public ArrayList<String> getLibrary() {
+        return library;
     }
 }
