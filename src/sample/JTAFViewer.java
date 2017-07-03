@@ -35,6 +35,7 @@ public class JTAFViewer extends Stage {
     private Node[] centerState = new Node[2]; //update basted on tabs
     private Node[] directoryState = new Node[2]; //update based on tabs
     private HashMap<String, ArrayList<String>> totalTestLibrary = new HashMap<>();
+    private StackPane lastResult = null;
 
     JTAFViewer(String projectPath, String libraryPath) throws ParserConfigurationException, SAXException, IOException {
         this.PROJECT_DIR = projectPath;
@@ -73,14 +74,13 @@ public class JTAFViewer extends Stage {
             getLibraryWindows(jtafLibrary, totalCommandWindows, totalFunctionWindows);
         }
 
-
         //fill out windowed library function bodies
         setLibraryBodyHyperLinks(totalLibraryBodyPanes, totalCommandWindows, totalFunctionWindows);
         setLibraryBodyHyperLinks(totalWindowedLibraryBodyPanes, totalCommandWindows, totalFunctionWindows);
 
         ScrollPane emptyLibraryPane = new ScrollPane();
         centerState[0] = emptyLibraryPane;
-        emptyLibraryPane.setPrefSize(LIBRARY_TOTAL_WIDTH, 600);
+        emptyLibraryPane.setPrefSize(LIBRARY_TOTAL_WIDTH, 400);
 
         JTAFHeader jtafHeader = new JTAFHeader(LIBRARY_TOTAL_WIDTH);
         HBox headerBox = jtafHeader.getHeaderBox();
@@ -222,15 +222,15 @@ public class JTAFViewer extends Stage {
                     System.out.println("Searched for: "+searchedName);
                     String libraryName = searchTestLibrary(searchedName);
                     if(!libraryName.isEmpty()) {
-                        defaultBorderPane.setCenter(testLibraryMap.get(libraryName));
-                        centerState[0] = testLibraryMap.get(libraryName);
+//                        defaultBorderPane.setCenter(testLibraryMap.get(libraryName));
+//                        centerState[0] = testLibraryMap.get(libraryName);
                         System.out.println(searchedName +" found in "+libraryName+"!");
-                        getSearchResult(testLibraryMap, libraryName, searchedName);
                         //update header and directory
                         for (Node node : directoryVBox.getChildren()) {
                             ToggleButton libraryPathButton = (ToggleButton) node;
                             if (libraryPathButton.getText().equals(libraryName)) {
                                 libraryPathButton.fire();
+                                getSearchResult(testLibraryMap, libraryName, searchedName); //must be after library pane is set
                                 break;
                             }
                         }
@@ -276,37 +276,73 @@ public class JTAFViewer extends Stage {
 
     public void getSearchResult(HashMap<String, ScrollPane> testLibraryMap, String libraryName, String searchedName) {
         //ScrollPane -> VBox -> VBox -> StackPane
-        ScrollPane libraryPane = testLibraryMap.get(libraryName);
+//        ScrollPane libraryPane = testLibraryMap.get(libraryName);
+        ScrollPane libraryPane = (ScrollPane) centerState[0];
         VBox libraryBox = (VBox) libraryPane.getContent();
         VBox commandBox = (VBox) libraryBox.getChildren().get(0);
         VBox functionBox = (VBox) libraryBox.getChildren().get(1);
+        double defaultLibraryPaneHeight = 400; //TODO
+        double actualLibraryPaneHeight = 0; //height of command header (is variable)
+        double resultHeight = 0;
         if (!commandBox.getChildren().isEmpty()) {
+            actualLibraryPaneHeight += 44;
             for (int i = 1; i < commandBox.getChildren().size(); i++) {
                 if (commandBox.getChildren().get(i).getClass().equals(StackPane.class)) {
+                    actualLibraryPaneHeight += 42; //StackPane == header
                     StackPane commandHeader = (StackPane) commandBox.getChildren().get(i);
                     Text commandHeaderText = (Text) commandHeader.getChildren().get(0);
                     if(commandHeaderText.getText().equalsIgnoreCase(searchedName)) {
-                        //TODO
-                        System.out.println(commandHeaderText.getText());
-//                        System.out.println(commandHeader.getBoundsInParent().getMinY());
+                        resultHeight = actualLibraryPaneHeight;
+                        minimizeHeaders(commandBox);
+
+                        GridPane commandGridPane = (GridPane) commandBox.getChildren().get(i+1);
+                        commandGridPane.setVisible(true);
+                        commandGridPane.setManaged(true);
+
+                        commandHeader.setBackground(new Background(new BackgroundFill(Color.YELLOW, CornerRadii.EMPTY, Insets.EMPTY))); //TODO: set effect
+                        if (lastResult != null) {
+                            if (!lastResult.equals(commandHeader))
+                                lastResult.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY))); //TODO: set effect
+                        }
+                        lastResult = commandHeader;
                     }
                 }
             }
         }
         if (!functionBox.getChildren().isEmpty()) {
+            actualLibraryPaneHeight += 44;
             for (int i = 1; i < functionBox.getChildren().size(); i++) {
                 if (functionBox.getChildren().get(i).getClass().equals(StackPane.class)) {
+                    actualLibraryPaneHeight += 42; //StackPane == header
                     StackPane functionHeader = (StackPane) functionBox.getChildren().get(i);
                     Text functionHeaderText = (Text) functionHeader.getChildren().get(0);
                     if(functionHeaderText.getText().equalsIgnoreCase(searchedName)) {
-                        System.out.println(functionHeaderText.getText());
+                        resultHeight = actualLibraryPaneHeight;
+                        minimizeHeaders(functionBox);
+
+                        GridPane functionGridPane = (GridPane) functionBox.getChildren().get(i+1);
+                        functionGridPane.setVisible(true);
+                        functionGridPane.setManaged(true);
+
+                        functionHeader.setBackground(new Background(new BackgroundFill(Color.YELLOW, CornerRadii.EMPTY, Insets.EMPTY))); //TODO: set effect
+                        if (lastResult != null) {
+                            if (!lastResult.equals(functionHeader))
+                                lastResult.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY))); //TODO: set effect
+                        }
+                        lastResult = functionHeader;
                     }
                 }
             }
         }
+        if (resultHeight > defaultLibraryPaneHeight) { //result header is outside of view
+            if (actualLibraryPaneHeight > defaultLibraryPaneHeight)
+                libraryPane.setVvalue(resultHeight / actualLibraryPaneHeight);
+            else libraryPane.setVvalue(resultHeight / defaultLibraryPaneHeight);
+        }
+
     }
 
-    public void minimizeCommands(VBox commandBox) {
+    public void minimizeHeaders(VBox commandBox) {
         for (Node node : commandBox.getChildren()) {
             if (node.getClass().equals(GridPane.class)) {
                 node.setVisible(false);

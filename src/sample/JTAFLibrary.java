@@ -55,7 +55,7 @@ public class JTAFLibrary {
         VBox functionBox = new VBox();
 
         libraryBox.setPrefWidth(LIBRARY_TOTAL_WIDTH);
-        libraryBox.setPrefHeight(600);
+        libraryBox.setPrefHeight(400);
 
         LibraryParser libraryParser = new LibraryParser(libraryPath);
         ArrayList<Command> commands = libraryParser.getCommands();
@@ -86,8 +86,8 @@ public class JTAFLibrary {
                     }
                 }
                 if (sum == 0)
-                    maximizeCommands(commandBox);
-                else minimizeCommands(commandBox);
+                    maximizeHeaders(commandBox);
+                else minimizeHeaders(commandBox);
             });
         }
         if(!functions.isEmpty()) {
@@ -114,8 +114,8 @@ public class JTAFLibrary {
                     }
                 }
                 if (sum == 0)
-                    maximizeCommands(functionBox);
-                else minimizeCommands(functionBox);
+                    maximizeHeaders(functionBox);
+                else minimizeHeaders(functionBox);
             });
         }
 
@@ -167,7 +167,6 @@ public class JTAFLibrary {
         libraryHeader.getChildren().add(classWindowButton);
         StackPane.setAlignment(classWindowButton, Pos.CENTER_RIGHT);
         StackPane.setMargin(classWindowButton, new Insets(0, 30, 0, 0));
-
         return libraryHeader;
     }
 
@@ -196,7 +195,7 @@ public class JTAFLibrary {
         row++;
         RowConstraints rowConstraint = new RowConstraints(50);
         commandGridPane.getRowConstraints().add(rowConstraint);
-        height+=rowConstraint.getMaxHeight();
+        height+=rowConstraint.getPrefHeight();
         if (command.hasCommandUsage()) {
             StackPane usagePane = new StackPane();
             usagePane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -218,7 +217,7 @@ public class JTAFLibrary {
                 rowHeight = 50;
             rowConstraint = new RowConstraints(rowHeight);
             commandGridPane.getRowConstraints().add(rowConstraint);
-            height+=rowConstraint.getMaxHeight();
+            height+=rowConstraint.getPrefHeight();
         }
         if (command.hasRequiredParameters()) {
             StackPane requiredParamPane = new StackPane();
@@ -234,7 +233,7 @@ public class JTAFLibrary {
             row++;
             rowConstraint = new RowConstraints(50);
             commandGridPane.getRowConstraints().add(rowConstraint);
-            height+=rowConstraint.getMaxHeight();
+            height+=rowConstraint.getPrefHeight();
 
             for(int i = 0; i < command.getRequiredParameters().size() * 3; i++) {
                 Text requiredParamKey = new Text("");
@@ -271,7 +270,7 @@ public class JTAFLibrary {
                     rowHeight = 25;
                 rowConstraint = new RowConstraints(rowHeight);
                 commandGridPane.getRowConstraints().add(rowConstraint);
-                height+=rowConstraint.getMaxHeight();
+                height+=rowConstraint.getPrefHeight();
             }
         }
         if (command.hasOptionalParameters()) {
@@ -288,7 +287,7 @@ public class JTAFLibrary {
             row++;
             rowConstraint = new RowConstraints(50);
             commandGridPane.getRowConstraints().add(rowConstraint);
-            height+=rowConstraint.getMaxHeight();
+            height+=rowConstraint.getPrefHeight();
 
             for(int i = 0; i < command.getOptionalParameters().size() * 3; i++) {
                 Text optionalParamKey = new Text("");
@@ -325,7 +324,7 @@ public class JTAFLibrary {
                     rowHeight = 25;
                 rowConstraint = new RowConstraints(rowHeight);
                 commandGridPane.getRowConstraints().add(rowConstraint);
-                height+=rowConstraint.getMaxHeight();
+                height+=rowConstraint.getPrefHeight();
             }
         }
         if (command.hasCommandResults()) {
@@ -342,7 +341,7 @@ public class JTAFLibrary {
             row++;
             rowConstraint = new RowConstraints(50);
             commandGridPane.getRowConstraints().add(rowConstraint);
-            height+=rowConstraint.getMaxHeight();
+            height+=rowConstraint.getPrefHeight();
 
             for(int i = 0; i < command.getCommandResults().size() * 3; i++) {
 
@@ -380,7 +379,7 @@ public class JTAFLibrary {
                     rowHeight = 25;
                 rowConstraint = new RowConstraints(rowHeight);
                 commandGridPane.getRowConstraints().add(rowConstraint);
-                height+=rowConstraint.getMaxHeight();
+                height+=rowConstraint.getPrefHeight();
             }
         }
         commandGridPane.setAlignment(Pos.CENTER);
@@ -425,21 +424,23 @@ public class JTAFLibrary {
         });
 
         commandHeader.setOnMouseEntered(event -> {
-                    commandHeader.setEffect(glow);
-                    commandHeader.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-//                    commandLabel.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
-                    classWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-                }
-        );
+            commandHeader.setEffect(glow);
+            if (!commandHeader.getBackground().equals(new Background(new BackgroundFill(Color.YELLOW, CornerRadii.EMPTY, Insets.EMPTY)))) {
+                commandHeader.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                classWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+            }
+        });
         commandHeader.setOnMouseExited(event -> {
-                    commandHeader.setEffect(null);
-                    commandHeader.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-//                    commandLabel.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-                    classWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-                }
-        );
+            commandHeader.setEffect(null);
+            if (!commandHeader.getBackground().equals(new Background(new BackgroundFill(Color.YELLOW, CornerRadii.EMPTY, Insets.EMPTY)))) {
+                commandHeader.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                classWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+            }
+        });
 
         commandHeader.setOnMouseClicked(event -> {
+            if (commandHeader.getBackground().equals(new Background(new BackgroundFill(Color.YELLOW, CornerRadii.EMPTY, Insets.EMPTY))))
+                commandHeader.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
             if (commandGridPane.isVisible()) {
                 commandGridPane.setVisible(false);
                 commandGridPane.setManaged(false);
@@ -451,7 +452,7 @@ public class JTAFLibrary {
         });
     }
 
-    public void minimizeCommands(VBox commandBox) {
+    public void minimizeHeaders(VBox commandBox) {
         for (Node node : commandBox.getChildren()) {
             if (node.getClass().equals(GridPane.class)) {
                 node.setVisible(false);
@@ -460,7 +461,7 @@ public class JTAFLibrary {
         }
     }
 
-    public void maximizeCommands(VBox commandBox) {
+    public void maximizeHeaders(VBox commandBox) {
         for (Node node : commandBox.getChildren()) {
             if (node.getClass().equals(GridPane.class)) {
                 node.setVisible(true);
@@ -502,7 +503,7 @@ public class JTAFLibrary {
                 rowHeight = 50;
             rowConstraint = new RowConstraints(rowHeight);
             functionGridPane.getRowConstraints().add(rowConstraint);
-            height+=rowConstraint.getMaxHeight();
+            height+=rowConstraint.getPrefHeight();
         }
         if (function.hasRequiredParameters()) {
             StackPane requiredParamPane = new StackPane();
@@ -518,7 +519,7 @@ public class JTAFLibrary {
             row++;
             rowConstraint = new RowConstraints(50);
             functionGridPane.getRowConstraints().add(rowConstraint);
-            height+=rowConstraint.getMaxHeight();
+            height+=rowConstraint.getPrefHeight();
 
             for(int i = 0; i < function.getRequiredParameters().size() * 3; i++) {
                 Text requiredParamKey = new Text("");
@@ -555,7 +556,7 @@ public class JTAFLibrary {
                     rowHeight = 25;
                 rowConstraint = new RowConstraints(rowHeight);
                 functionGridPane.getRowConstraints().add(rowConstraint);
-                height+=rowConstraint.getMaxHeight();
+                height+=rowConstraint.getPrefHeight();
             }
         }
         if (function.hasOptionalParameters()) {
@@ -572,7 +573,7 @@ public class JTAFLibrary {
             row++;
             rowConstraint = new RowConstraints(50);
             functionGridPane.getRowConstraints().add(rowConstraint);
-            height+=rowConstraint.getMaxHeight();
+            height+=rowConstraint.getPrefHeight();
 
             for(int i = 0; i < function.getOptionalParameters().size() * 3; i++) {
                 Text optionalParamKey = new Text("");
@@ -609,7 +610,7 @@ public class JTAFLibrary {
                     rowHeight = 25;
                 rowConstraint = new RowConstraints(rowHeight);
                 functionGridPane.getRowConstraints().add(rowConstraint);
-                height+=rowConstraint.getMaxHeight();
+                height+=rowConstraint.getPrefHeight();
             }
         }
         if (function.hasFunctionBody()) {
@@ -629,7 +630,7 @@ public class JTAFLibrary {
             row++;
             rowConstraint = new RowConstraints(50);
             functionGridPane.getRowConstraints().add(rowConstraint);
-            height += rowConstraint.getMaxHeight();
+            height += rowConstraint.getPrefHeight();
 
             for (int i = 0; i < function.getFunctionBody().size(); i++) {
                 String functionBodyCommandName = function.getFunctionBody().get(i);
@@ -654,7 +655,7 @@ public class JTAFLibrary {
                     rowHeight = 30;
                 rowConstraint = new RowConstraints(rowHeight);
                 functionGridPane.getRowConstraints().add(rowConstraint);
-                height += rowConstraint.getMaxHeight();
+                height += rowConstraint.getPrefHeight();
             }
             totalBodyPanes.put(function.getFunctionName(), bodyPanes);
         }
@@ -672,7 +673,7 @@ public class JTAFLibrary {
             row++;
             rowConstraint = new RowConstraints(50);
             functionGridPane.getRowConstraints().add(rowConstraint);
-            height+=rowConstraint.getMaxHeight();
+            height+=rowConstraint.getPrefHeight();
 
             for(int i = 0; i < function.getFunctionResults().size() * 3; i++) {
                 Text resultsParamKey = new Text("");
@@ -709,7 +710,7 @@ public class JTAFLibrary {
                     rowHeight = 25;
                 rowConstraint = new RowConstraints(rowHeight);
                 functionGridPane.getRowConstraints().add(rowConstraint);
-                height+=rowConstraint.getMaxHeight();
+                height+=rowConstraint.getPrefHeight();
             }
         }
         functionGridPane.setAlignment(Pos.CENTER);
@@ -754,21 +755,24 @@ public class JTAFLibrary {
         });
 
         functionHeader.setOnMouseEntered(event -> {
-                    functionHeader.setEffect(glow);
-                    functionHeader.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-//                    commandLabel.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
-                    classWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-                }
-        );
+            functionHeader.setEffect(glow);
+            if (!functionHeader.getBackground().equals(new Background(new BackgroundFill(Color.YELLOW, CornerRadii.EMPTY, Insets.EMPTY)))) {
+                functionHeader.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                classWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+            }
+        });
+
         functionHeader.setOnMouseExited(event -> {
-                    functionHeader.setEffect(null);
-                    functionHeader.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-//                    commandLabel.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-                    classWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-                }
-        );
+            functionHeader.setEffect(null);
+            if (!functionHeader.getBackground().equals(new Background(new BackgroundFill(Color.YELLOW, CornerRadii.EMPTY, Insets.EMPTY)))) {
+                functionHeader.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                classWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+            }
+        });
 
         functionHeader.setOnMouseClicked(event -> {
+            if (functionHeader.getBackground().equals(new Background(new BackgroundFill(Color.YELLOW, CornerRadii.EMPTY, Insets.EMPTY))))
+                functionHeader.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
             if (functionGridPane.isVisible()) {
                 functionGridPane.setVisible(false);
                 functionGridPane.setManaged(false);

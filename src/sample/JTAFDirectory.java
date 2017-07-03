@@ -40,7 +40,7 @@ public class JTAFDirectory {
 
     public ScrollPane getDirectoryPane() {
         directoryPane = new ScrollPane();
-        directoryPane.setPrefHeight(600);
+        directoryPane.setPrefHeight(400);
         directoryPane.setPrefWidth(200);
         VBox directoryVBox = new VBox();
         for (String library: testLibrary) {
