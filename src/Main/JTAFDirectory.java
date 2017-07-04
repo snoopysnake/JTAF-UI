@@ -1,13 +1,14 @@
-package sample;
+package Main;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +18,9 @@ import java.util.ArrayList;
  * Created by Michael on 06/29/2017.
  */
 public class JTAFDirectory {
+    public Color DIRECTORY_UNSELECTED_COLOR = Color.web("#73787D");
+    public Color DIRECTORY_SELECTED_COLOR = Color.WHITE; //TODO: change
+
     private String PROJECT_DIR;
     private final String TEST_LIBRARY_DIR; //change depending on version
     private ScrollPane directoryPane;
@@ -40,14 +44,17 @@ public class JTAFDirectory {
 
     public ScrollPane getDirectoryPane() {
         directoryPane = new ScrollPane();
-        directoryPane.setPrefHeight(400);
+//        directoryPane.setPrefHeight(400);
         directoryPane.setPrefWidth(200);
+        directoryPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); //TODO
         VBox directoryVBox = new VBox();
+        directoryVBox.setPrefHeight(500); //border of scrollpane
+        directoryVBox.setBackground(new Background(new BackgroundFill(DIRECTORY_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
         for (String library: testLibrary) {
             ToggleButton libraryPathButton = new ToggleButton(library);
 //            libraryPathButton.setBorder(new Border(new BorderStroke(Color.BLACK,
 //                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-            libraryPathButton.setBackground(new Background(new BackgroundFill(Color.GRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+            libraryPathButton.setBackground(new Background(new BackgroundFill(DIRECTORY_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
             libraryPathButton.setPrefSize(200,25);
             directoryVBox.getChildren().add(libraryPathButton);
         }

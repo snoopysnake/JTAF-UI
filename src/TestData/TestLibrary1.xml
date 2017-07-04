@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="CommandViewer.xsl"?>
+<library>
+    <command name="Command1" class="command1.java">
+        <usage>
+            command 1 description here
+        </usage>
+        <requiredParameters>
+            <string name="firstReq">first req param</string>
+            <string name="secondReq">second req param</string>
+        </requiredParameters>
+        <optionalParameters>
+            <string name="firstOpt">first opt param</string>
+            <string name="secondOpt">second opt param</string>
+        </optionalParameters>
+        <produces>
+            <string name="firstResult">first result</string>
+            <string name="secondResult">second result</string>
+        </produces>
+    </command>
+    <command name="Command2" class="command2.java">
+        <usage>
+            command 2 description here
+        </usage>
+        <optionalParameters>
+            <string name="firstOpt">first opt param</string>
+            <string name="secondOpt">second opt param</string>
+        </optionalParameters>
+        <produces>
+            <string name="firstResult">first result</string>
+            <string name="secondResult">second result</string>
+        </produces>
+    </command>
+    <command name="Command3" class="command3.java">
+        <usage>
+            command 3 description here
+        </usage>
+        <produces>
+            <string name="firstResult">first result</string>
+            <string name="secondResult">second result</string>
+        </produces>
+    </command>
+    <command name="Command4" class="command4.java">
+        <usage>
+            command 4 description here
+        </usage>
+    </command>
+</library>

@@ -1,4 +1,4 @@
-package sample;
+package Main;
 
 import JTAF.Command;
 import JTAF.Function;
@@ -8,33 +8,30 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Created by Alex on 7/18/2016.
  */
 public class LibraryParser {
     public String libraryName;
-    private DocumentBuilder docBuilder;
     private ArrayList<Command> commands = new ArrayList<>();
     private ArrayList<Function> functions = new ArrayList<>();
 
     public LibraryParser(String path) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-        docBuilder = docFactory.newDocumentBuilder();
+        docFactory.setIgnoringComments(true);
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 
         File file = new File(path);
         libraryName = file.getName();
         Document doc = docBuilder.parse(file);
-        doc.normalize();
+//        doc.normalize();
         Node library = doc.getFirstChild();
         //checks if file contains library tag
         NodeList docNodeList = doc.getChildNodes();
@@ -78,7 +75,6 @@ public class LibraryParser {
         for (int j = 0; j < commandChildList.getLength(); j++) {
             if (commandChildList.item(j).getNodeType() == commandChildList.item(j).ELEMENT_NODE) {
                 Element commandChild = (Element) commandChildList.item(j);
-
                 if (commandChild.getTagName().equals("usage")) {
                     String commandResult = commandChild.getTextContent();
                     command.setCommandUsage(commandResult);
@@ -107,8 +103,6 @@ public class LibraryParser {
                 if (commandChild.getTagName().equals("produces")) {
                     NodeList resultNodeList = commandChild.getChildNodes();
                     for(int k = 0; k < resultNodeList.getLength(); k++) {
-                        System.out.println("a");
-
                         if(resultNodeList.item(k).getNodeType() == resultNodeList.item(k).ELEMENT_NODE) {
                             Element resultChild = (Element) resultNodeList.item(k);
                             command.addCommandResult(createParameter(resultChild));

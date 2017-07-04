@@ -1,7 +1,7 @@
 package Tests;
 
 import org.junit.Test;
-import sample.FindExistingProject;
+import Main.FindExistingProject;
 
 /**
  * Created by Alex on 7/23/2016.
