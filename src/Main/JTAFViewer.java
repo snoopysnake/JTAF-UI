@@ -335,13 +335,17 @@ public class JTAFViewer extends Stage {
                             commandGridPane.setManaged(true);
 
                             commandHeader.setBackground(new Background(new BackgroundFill(LIBRARY_SEARCH_COLOR, CornerRadii.EMPTY, Insets.EMPTY))); //TODO: set effect
-                            Button classWindowButton = (Button) commandHeader.getChildren().get(1);
-                            classWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_SEARCH_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                            Button editWindowButton = (Button) commandHeader.getChildren().get(1);
+                            Button openWindowButton = (Button) commandHeader.getChildren().get(2);
+                            openWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_SEARCH_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                            editWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_SEARCH_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
                             if (lastResult != null) {
                                 if (!lastResult.equals(commandHeader)) {
                                     lastResult.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY))); //TODO: set effect
-                                    Button lastResultButton = (Button) lastResult.getChildren().get(1);
-                                    lastResultButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                                    Button lastEditWindowButton = (Button) lastResult.getChildren().get(1);
+                                    Button lastOpenWindowButton = (Button) lastResult.getChildren().get(2);
+                                    lastEditWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                                    lastOpenWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
                                 }
                             }
                             lastResult = commandHeader;
@@ -377,13 +381,17 @@ public class JTAFViewer extends Stage {
                             functionGridPane.setManaged(true);
 
                             functionHeader.setBackground(new Background(new BackgroundFill(LIBRARY_SEARCH_COLOR, CornerRadii.EMPTY, Insets.EMPTY))); //TODO: set effect
-                            Button functionWindowButton = (Button) functionHeader.getChildren().get(1);
-                            functionWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_SEARCH_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                            Button editWindowButton = (Button) functionHeader.getChildren().get(1);
+                            Button openWindowButton = (Button) functionHeader.getChildren().get(2);
+                            openWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_SEARCH_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                            editWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_SEARCH_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
                             if (lastResult != null) {
                                 if (!lastResult.equals(functionHeader)) {
                                     lastResult.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY))); //TODO: set effect
-                                    Button lastResultButton = (Button) lastResult.getChildren().get(1);
-                                    lastResultButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                                    Button lastEditWindowButton = (Button) lastResult.getChildren().get(1);
+                                    Button lastOpenWindowButton = (Button) lastResult.getChildren().get(2);
+                                    lastEditWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                                    lastOpenWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
                                 }
                             }
                             lastResult = functionHeader;

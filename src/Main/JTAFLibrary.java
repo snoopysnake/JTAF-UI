@@ -68,13 +68,21 @@ public class JTAFLibrary {
 
         if(!commands.isEmpty()) {
             StackPane commandBoxHeader = createCategoryHeader("COMMANDS",25, CATEGORY_HEADER_COLOR);
+            Button newCommandButton = new Button();
+            newCommandButton.setBackground(new Background(new BackgroundFill(CATEGORY_HEADER_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+            StackPane.setAlignment(newCommandButton, Pos.CENTER_RIGHT);
+            StackPane.setMargin(newCommandButton, new Insets(0, 35, 0, 0));
+            Image newCmdImg = new Image(getClass().getResourceAsStream("images\\ic_add_white_18dp.png"));
+            ImageView newCmdImgView = new ImageView(newCmdImg);
+            newCommandButton.setGraphic(newCmdImgView);
+            commandBoxHeader.getChildren().add(newCommandButton);
             commandBox.getChildren().add(commandBoxHeader);
             for (int i = 0; i < commands.size(); i++) {
                 Command command = commands.get(i);
                 StackPane commandHeader = createLibraryHeader(command.getCommandName());
                 GridPane commandGridPane = createCommandGridPane(command);
                 createCommandWindows(command); //must be created before mouse effects set
-                commandMouseEffects(commandHeader, commandGridPane, command);
+                setCommandMouseEffects(commandHeader, commandGridPane, command);
                 commandBox.getChildren().add(commandHeader);
                 commandBox.getChildren().add(commandGridPane);
                 library.add(command.getCommandName());
@@ -94,16 +102,27 @@ public class JTAFLibrary {
                     maximizeHeaders(commandBox);
                 else minimizeHeaders(commandBox);
             });
+
+            //new command button
+            setNewCommandButtonEffects(newCommandButton);
         }
         if(!functions.isEmpty()) {
             StackPane functionBoxHeader = createCategoryHeader("FUNCTIONS",25,CATEGORY_HEADER_COLOR);
+            Button newFunctionButton = new Button();
+            newFunctionButton.setBackground(new Background(new BackgroundFill(CATEGORY_HEADER_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+            StackPane.setAlignment(newFunctionButton, Pos.CENTER_RIGHT);
+            StackPane.setMargin(newFunctionButton, new Insets(0, 35, 0, 0));
+            Image newFctImg = new Image(getClass().getResourceAsStream("images\\ic_add_white_18dp.png"));
+            ImageView newFctImgView = new ImageView(newFctImg);
+            newFunctionButton.setGraphic(newFctImgView);
+            functionBoxHeader.getChildren().add(newFunctionButton);
             functionBox.getChildren().add(functionBoxHeader);
             for (int i = 0; i < libraryParser.getFunctions().size(); i++) {
                 Function function = functions.get(i);
                 StackPane functionHeader = createLibraryHeader(function.getFunctionName());
                 GridPane functionGridPane = createFunctionGridPane(function, libraryBodyPanes);
                 createFunctionWindows(function); //must be created before mouse effects set
-                functionMouseEffects(functionHeader, functionGridPane, function);
+                setFunctionMouseEffects(functionHeader, functionGridPane, function);
                 functionBox.getChildren().add(functionHeader);
                 functionBox.getChildren().add(functionGridPane);
                 library.add(function.getFunctionName());
@@ -122,6 +141,9 @@ public class JTAFLibrary {
                     maximizeHeaders(functionBox);
                 else minimizeHeaders(functionBox);
             });
+
+            //new command button
+            setNewFunctionButtonEffects(newFunctionButton);
         }
 
         libraryBox.getChildren().add(commandBox);
@@ -158,15 +180,24 @@ public class JTAFLibrary {
         libraryHeader.setPrefWidth(LIBRARY_TOTAL_WIDTH);
         libraryHeader.getChildren().add(libraryHeaderText);
 
-        Button classWindowButton = new Button();
-        Image img = new Image(getClass().getResourceAsStream("images\\ic_open_in_new_white_12dp.png"));
-        ImageView imgView = new ImageView(img);
-        classWindowButton.setGraphic(imgView);
-        classWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+        Button openWindowButton = new Button();
+        Image img1 = new Image(getClass().getResourceAsStream("images\\ic_open_in_new_white_18dp.png"));
+        ImageView imgView1 = new ImageView(img1);
+        openWindowButton.setGraphic(imgView1);
+        openWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
 
-        libraryHeader.getChildren().add(classWindowButton);
-        StackPane.setAlignment(classWindowButton, Pos.CENTER_RIGHT);
-        StackPane.setMargin(classWindowButton, new Insets(0, 30, 0, 0));
+        Button editWindowButton = new Button();
+        Image img2 = new Image(getClass().getResourceAsStream("images\\ic_create_white_18dp.png"));
+        ImageView imgView2 = new ImageView(img2);
+        editWindowButton.setGraphic(imgView2);
+        editWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+
+        libraryHeader.getChildren().add(editWindowButton);
+        libraryHeader.getChildren().add(openWindowButton);
+        StackPane.setAlignment(editWindowButton, Pos.CENTER_RIGHT);
+        StackPane.setMargin(editWindowButton, new Insets(0, 90, 0, 0));
+        StackPane.setAlignment(openWindowButton, Pos.CENTER_RIGHT);
+        StackPane.setMargin(openWindowButton, new Insets(0, 30, 0, 0));
         return libraryHeader;
     }
 
@@ -213,12 +244,12 @@ public class JTAFLibrary {
         classPane.getChildren().add(new Text("Class"));
         classPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                 BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-        commandGridPane.add(classPane,0,row);
+        commandGridPane.add(classPane, 0, row);
         StackPane classPaneInfo = new StackPane();
         classPaneInfo.getChildren().add(new Text(command.getCommandClass()));
         classPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
                 BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-        commandGridPane.add(classPaneInfo,1,row);
+        commandGridPane.add(classPaneInfo, 1, row);
         row++;
         RowConstraints rowConstraint = new RowConstraints(50);
         commandGridPane.getRowConstraints().add(rowConstraint);
@@ -304,42 +335,86 @@ public class JTAFLibrary {
         }
     }
 
-    public void commandMouseEffects(StackPane commandHeader, GridPane commandGridPane, Command command) {
+    public void setNewCommandButtonEffects(Button newCommandButton) {
         DropShadow glow = new DropShadow();
         glow.setOffsetY(0);
         glow.setOffsetX(0);
-        glow.setColor(Color.AQUA);
+        glow.setColor(Color.WHITE);
+        glow.setWidth(25);
+        glow.setHeight(25);
+
+        ImageView newCmdImgView = (ImageView) newCommandButton.getGraphic();
+
+        newCommandButton.setOnMouseEntered(event -> {
+            newCmdImgView.setEffect(glow);
+        });
+
+        newCommandButton.setOnMouseExited(event -> {
+            newCmdImgView.setEffect(null);
+        });
+
+        newCommandButton.setOnMouseClicked(event -> {
+            //add command!
+        });
+    }
+
+    public void setNewFunctionButtonEffects(Button newFunctionButton) {
+        DropShadow glow = new DropShadow();
+        glow.setOffsetY(0);
+        glow.setOffsetX(0);
+        glow.setColor(Color.WHITE);
+        glow.setWidth(25);
+        glow.setHeight(25);
+
+        ImageView newFctImgView = (ImageView) newFunctionButton.getGraphic();
+
+        newFunctionButton.setOnMouseEntered(event -> {
+            newFctImgView.setEffect(glow);
+        });
+
+        newFunctionButton.setOnMouseExited(event -> {
+            newFctImgView.setEffect(null);
+        });
+
+        newFunctionButton.setOnMouseClicked(event -> {
+            //add command!
+        });
+    }
+
+    public void setCommandMouseEffects(StackPane commandHeader, GridPane commandGridPane, Command command) {
+        DropShadow glow = new DropShadow();
+        glow.setOffsetY(0);
+        glow.setOffsetX(0);
+        glow.setColor(Color.WHITE);
         glow.setWidth(25);
         glow.setHeight(25);
 
         Text commandText = (Text) commandHeader.getChildren().get(0);
-        Button classWindowButton = (Button) commandHeader.getChildren().get(1);
-        ImageView imgView = (ImageView) classWindowButton.getGraphic();
+        Button editWindowButton = (Button) commandHeader.getChildren().get(1);
+        ImageView imgView1 = (ImageView) editWindowButton.getGraphic();
+        Button openWindowButton = (Button) commandHeader.getChildren().get(2);
+        ImageView imgView2 = (ImageView) openWindowButton.getGraphic();
 
-        classWindowButton.setOnMouseEntered(event -> {
-            imgView.setEffect(glow);
+        editWindowButton.setOnMouseEntered(event -> {
+            imgView1.setEffect(glow);
         });
-        classWindowButton.setOnMouseExited(event -> {
-            imgView.setEffect(null);
+        editWindowButton.setOnMouseExited(event -> {
+            imgView1.setEffect(null);
+        });
+
+        editWindowButton.setOnMouseClicked(event -> {
+            //EDIT COMMAND
+        });
+
+        openWindowButton.setOnMouseEntered(event -> {
+            imgView2.setEffect(glow);
+        });
+        openWindowButton.setOnMouseExited(event -> {
+            imgView2.setEffect(null);
         });
 
         //command in new window
-        classWindowButton.setOnMouseClicked(event -> {
-//            commandGridPane.getChildren().removeAll(commandGridPane.getChildren());
-//            StackPane classPane = new StackPane();
-//            classPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-//            classPane.getChildren().add(new Text("Class"));
-//            classPane.setBorder(new Border(new BorderStroke(Color.BLACK,
-//                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-//            commandGridPane.add(classPane,0,0);
-//            StackPane classPaneInfo = new StackPane();
-//            classPaneInfo.getChildren().add(new Text(command.getCommandClass()));
-//            classPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
-//                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-//            commandGridPane.add(classPaneInfo,1,0);
-//            RowConstraints rowConstraint = new RowConstraints(50);
-//            commandGridPane.getRowConstraints().add(rowConstraint);
-
+        openWindowButton.setOnMouseClicked(event -> {
             Stage windowStage = commandWindows.get(command.getCommandName());
             windowStage.setTitle(command.getCommandName());
             if (windowStage.isShowing())
@@ -351,21 +426,24 @@ public class JTAFLibrary {
 //            commandHeader.setEffect(glow);
             if (!commandHeader.getBackground().equals(new Background(new BackgroundFill(LIBRARY_SEARCH_COLOR, CornerRadii.EMPTY, Insets.EMPTY)))) {
                 commandHeader.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_SELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-                classWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_SELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                editWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_SELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                openWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_SELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
             }
         });
         commandHeader.setOnMouseExited(event -> {
 //            commandHeader.setEffect(null);
             if (!commandHeader.getBackground().equals(new Background(new BackgroundFill(LIBRARY_SEARCH_COLOR, CornerRadii.EMPTY, Insets.EMPTY)))) {
                 commandHeader.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-                classWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                editWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                openWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
             }
         });
 
         commandHeader.setOnMouseClicked(event -> {
             if (commandHeader.getBackground().equals(new Background(new BackgroundFill(LIBRARY_SEARCH_COLOR, CornerRadii.EMPTY, Insets.EMPTY)))) {
                 commandHeader.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_SELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-                classWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_SELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                editWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_SELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                openWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_SELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
             }
             if (commandGridPane.isVisible()) {
                 commandGridPane.setVisible(false);
@@ -503,27 +581,40 @@ public class JTAFLibrary {
 
     }
 
-    public void functionMouseEffects(StackPane functionHeader, GridPane functionGridPane, Function function) {
+    public void setFunctionMouseEffects(StackPane functionHeader, GridPane functionGridPane, Function function) {
         DropShadow glow = new DropShadow();
         glow.setOffsetY(0);
         glow.setOffsetX(0);
-        glow.setColor(Color.AQUA);
+        glow.setColor(Color.WHITE);
         glow.setWidth(25);
         glow.setHeight(25);
 
         Text functionText = (Text) functionHeader.getChildren().get(0);
-        Button classWindowButton = (Button) functionHeader.getChildren().get(1);
-        ImageView imgView = (ImageView) classWindowButton.getGraphic();
+        Button editWindowButton = (Button) functionHeader.getChildren().get(1);
+        ImageView imgView1 = (ImageView) editWindowButton.getGraphic();
+        Button openWindowButton = (Button) functionHeader.getChildren().get(2);
+        ImageView imgView2 = (ImageView) openWindowButton.getGraphic();
 
-        classWindowButton.setOnMouseEntered(event -> {
-            imgView.setEffect(glow);
+        editWindowButton.setOnMouseEntered(event -> {
+            imgView1.setEffect(glow);
         });
-        classWindowButton.setOnMouseExited(event -> {
-            imgView.setEffect(null);
+        editWindowButton.setOnMouseExited(event -> {
+            imgView1.setEffect(null);
+        });
+
+        editWindowButton.setOnMouseClicked(event -> {
+            //EDIT FUNCTION
+        });
+
+        openWindowButton.setOnMouseEntered(event -> {
+            imgView2.setEffect(glow);
+        });
+        openWindowButton.setOnMouseExited(event -> {
+            imgView2.setEffect(null);
         });
 
         //function in new window
-        classWindowButton.setOnMouseClicked(event -> {
+        openWindowButton.setOnMouseClicked(event -> {
             Stage windowStage = functionWindows.get(function.getFunctionName());
             windowStage.setTitle(function.getFunctionName());
             if (windowStage.isShowing())
@@ -535,7 +626,8 @@ public class JTAFLibrary {
 //            functionHeader.setEffect(glow);
             if (!functionHeader.getBackground().equals(new Background(new BackgroundFill(LIBRARY_SEARCH_COLOR, CornerRadii.EMPTY, Insets.EMPTY)))) {
                 functionHeader.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_SELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-                classWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_SELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                editWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_SELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                openWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_SELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
             }
         });
 
@@ -543,14 +635,16 @@ public class JTAFLibrary {
 //            functionHeader.setEffect(null);
             if (!functionHeader.getBackground().equals(new Background(new BackgroundFill(LIBRARY_SEARCH_COLOR, CornerRadii.EMPTY, Insets.EMPTY)))) {
                 functionHeader.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-                classWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                editWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                openWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_UNSELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
             }
         });
 
         functionHeader.setOnMouseClicked(event -> {
             if (functionHeader.getBackground().equals(new Background(new BackgroundFill(LIBRARY_SEARCH_COLOR, CornerRadii.EMPTY, Insets.EMPTY)))) {
                 functionHeader.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_SELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-                classWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_SELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                editWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_SELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                openWindowButton.setBackground(new Background(new BackgroundFill(LIBRARY_HEADER_SELECTED_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
             }
             if (functionGridPane.isVisible()) {
                 functionGridPane.setVisible(false);
