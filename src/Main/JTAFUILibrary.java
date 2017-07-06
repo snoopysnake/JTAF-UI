@@ -9,6 +9,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.DropShadow;
@@ -46,8 +47,7 @@ public class JTAFUILibrary {
     private ScrollPane libraryPane;
     private ArrayList<JTAFUICommand> uiCommands = new ArrayList<>();
     private ArrayList<JTAFUIFunction> uiFunctions = new ArrayList<>();
-    private int row;
-    private double height;
+    private ArrayList<StackPane> uiFunctionBodies = new ArrayList<>();
 
     public JTAFUILibrary(Library library) {
         libraryName = library.getLibraryName();
@@ -103,6 +103,7 @@ public class JTAFUILibrary {
                 Function function = functions.get(i);
                 JTAFUIFunction uiFunction = new JTAFUIFunction(function);
                 uiFunctions.add(uiFunction);
+                uiFunctionBodies.addAll(uiFunction.getFunctionBodyPanes());
                 StackPane functionHeader = uiFunction.getFunctionHeader();
                 GridPane functionGridPane = uiFunction.getFunctionGridPane();
                 functionBox.getChildren().add(functionHeader);
@@ -148,7 +149,11 @@ public class JTAFUILibrary {
         return this.uiFunctions;
     }
 
-    public StackPane createCategoryHeader(String name, int fontSize, Color color) {
+    public ArrayList<StackPane> getUIFunctionBodies() {
+        return this.uiFunctionBodies;
+    }
+
+    private StackPane createCategoryHeader(String name, int fontSize, Color color) {
         StackPane categoryHeader = new StackPane();
 
         Label categoryHeaderLabel = new Label(name);
@@ -161,7 +166,7 @@ public class JTAFUILibrary {
         return categoryHeader;
     }
 
-    public void minimizeHeaders(VBox commandBox) {
+    private void minimizeHeaders(VBox commandBox) {
         for (Node node : commandBox.getChildren()) {
             if (node.getClass().equals(GridPane.class)) {
                 node.setVisible(false);
@@ -170,12 +175,75 @@ public class JTAFUILibrary {
         }
     }
 
-    public void maximizeHeaders(VBox commandBox) {
+    private void maximizeHeaders(VBox commandBox) {
         for (Node node : commandBox.getChildren()) {
             if (node.getClass().equals(GridPane.class)) {
                 node.setVisible(true);
                 node.setManaged(true);
             }
         }
+    }
+
+    public void setFunctionBodies(ArrayList<JTAFUILibrary> testLibraryUI) {
+        for (int i = 0; i < uiFunctionBodies.size(); i+=2) {
+            StackPane functionBodyTypePane = uiFunctionBodies.get(i);
+            StackPane functionBodyHyperLinkPane = uiFunctionBodies.get(i+1);
+            Hyperlink functionBodyHyperLink = (Hyperlink) functionBodyHyperLinkPane.getChildren().get(0);
+
+            Object searchResult = null;
+            String bodyType = "null";
+            for (JTAFUILibrary jtafuiLibrary : testLibraryUI) {
+                searchResult = searchInTestLibraryUI(jtafuiLibrary, functionBodyHyperLink.getText());
+                if (searchResult != null) {
+                    if (searchResult.getClass().equals(JTAFUICommand.class))
+                        bodyType = "Command";
+                    if (searchResult.getClass().equals(JTAFUIFunction.class))
+                        bodyType = "Function";
+                    break;
+                }
+            }
+            functionBodyTypePane.getChildren().add(new Text(bodyType));
+
+            if (searchResult == null)
+                functionBodyHyperLink.setDisable(true);
+            else if (searchResult.getClass().equals(JTAFUICommand.class)) {
+                JTAFUICommand uiCommand = (JTAFUICommand) searchResult;
+
+                functionBodyHyperLink.setOnAction(event -> {
+                    Stage windowStage = uiCommand.getCommandWindow();
+                    windowStage.setTitle(uiCommand.getCommandName());
+                    if (windowStage.isShowing())
+                        windowStage.close();
+                    windowStage.show();
+                });
+            } else if (searchResult.getClass().equals(JTAFUIFunction.class)) {
+                JTAFUIFunction uiFunction = (JTAFUIFunction) searchResult;
+
+                functionBodyHyperLink.setOnAction(event -> {
+                    Stage windowStage = uiFunction.getFunctionWindow();
+                    windowStage.setTitle(uiFunction.getFunctionName());
+                    if (windowStage.isShowing())
+                        windowStage.close();
+                    windowStage.show();
+                });
+            }
+        }
+    }
+
+    private Object searchInTestLibraryUI(JTAFUILibrary jtafuiLibrary, String searchedName) {
+        ArrayList<JTAFUICommand> uiCommands = jtafuiLibrary.getUICommands();
+        ArrayList<JTAFUIFunction> uiFunctions = jtafuiLibrary.getUIFunctions();
+        for (JTAFUICommand  uiCommand: uiCommands) {
+            if (uiCommand.getCommandName().equalsIgnoreCase(searchedName)) {
+                return uiCommand;
+            }
+        }
+
+        for (JTAFUIFunction uiFunction : uiFunctions) {
+            if (uiFunction.getFunctionName().equalsIgnoreCase(searchedName)) {
+                return uiFunction;
+            }
+        }
+        return null;
     }
 }

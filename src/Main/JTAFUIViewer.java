@@ -55,35 +55,17 @@ public class JTAFUIViewer extends Stage {
 
         BorderPane defaultBorderPane = new BorderPane();
         defaultBorderPane.setPrefHeight(600);
-//        HashMap<String, ArrayList<StackPane>> totalLibraryBodyPanes = new HashMap<>();
-//        HashMap<String, ArrayList<StackPane>> totalWindowedLibraryBodyPanes = new HashMap<>();
-//        HashMap<String, Stage> totalCommandWindows = new HashMap<>(); //maps name to stage (keyset = all commands)
-//        HashMap<String, Stage> totalFunctionWindows = new HashMap<>(); //keyset = all functions
-//        HashMap<String, ScrollPane> testLibraryMap = new HashMap<>(); //maps library name to library scrollpane
 
         for (int i = 0; i < testLibrary.size(); i++) {
-            //creates gridpanes for library
-//            JTAFLibrary jtafLibrary = new JTAFLibrary(PROJECT_DIR+TEST_LIBRARY_DIR+"\\"+testLibrary.get(i).getLibraryName());
             JTAFUILibrary jtafLibrary = new JTAFUILibrary(testLibrary.get(i));
-
-            //dimensions
             getLibraryGlobalVars(jtafLibrary);
-
-            //maps library name to library pane for directory buttons
-//            ScrollPane libraryPane = jtafLibrary.getLibraryPane();
             testLibraryUI.add(jtafLibrary);
-//            getLibraryBody(jtafLibrary, totalLibraryBodyPanes, totalWindowedLibraryBodyPanes);
-//            getLibraryWindows(jtafLibrary, totalCommandWindows, totalFunctionWindows);
         }
 
-        //fill out windowed library function bodies
-//        setLibraryBodyHyperLinks(totalLibraryBodyPanes, totalCommandWindows, totalFunctionWindows);
-//        setLibraryBodyHyperLinks(totalWindowedLibraryBodyPanes, totalCommandWindows, totalFunctionWindows);
-
-//        ScrollPane emptyLibraryPane = new ScrollPane();
-//        emptyLibraryPane.setContent(emptyPane);
-//        centerState[0] = emptyLibraryPane;
-//        emptyLibraryPane.setPrefSize(LIBRARY_TOTAL_WIDTH, 500);
+        for (int i = 0; i < testLibraryUI.size(); i++) {
+            JTAFUILibrary jtafLibrary = testLibraryUI.get(i);
+            jtafLibrary.setFunctionBodies(testLibraryUI);
+        }
 
         StackPane emptyPane = new StackPane();
         emptyPane.setPrefHeight(500);
@@ -104,10 +86,7 @@ public class JTAFUIViewer extends Stage {
         this.DIRECTORY_UNSELECTED_COLOR = directory.DIRECTORY_UNSELECTED_COLOR;
 
         ScrollPane directoryPane = directory.getDirectoryPane();
-        jtafHeader.setTestLibrarySearch(directory.getDirectoryButtons(),testLibraryUI);
-
-//        setTabEvents(defaultBorderPane, tabsBox, directoryPane);
-//        setSearchBarEvents(defaultBorderPane, jtafHeader.getSearchBarBox(), directoryPane, testLibraryMap);
+        jtafHeader.setTestLibrarySearch(directory.getDirectoryButtons(), testLibraryUI);
 
         defaultBorderPane.setTop(headerBox);
         defaultBorderPane.setCenter(emptyPane);
@@ -120,16 +99,15 @@ public class JTAFUIViewer extends Stage {
     private ArrayList<String> searchLibrary(File[] fileList, ArrayList<String> arrayList, String directoryName, String typeOfFile) throws IOException {
         for (File file : fileList) {
             if (file.isDirectory()) {
-                arrayList = searchLibrary(file.listFiles(), arrayList, directoryName+file.getName()+"\\", typeOfFile); //adds directories to path
-            }
-            else if(file.getName().endsWith(typeOfFile))
-                arrayList.add(directoryName+file.getName());
+                arrayList = searchLibrary(file.listFiles(), arrayList, directoryName + file.getName() + "\\", typeOfFile); //adds directories to path
+            } else if (file.getName().endsWith(typeOfFile))
+                arrayList.add(directoryName + file.getName());
         }
         return arrayList;
     }
 
     public ArrayList<Library> getTestLibrary() throws Exception {
-        File testLibraryPath = new File(PROJECT_DIR+TEST_LIBRARY_DIR);
+        File testLibraryPath = new File(PROJECT_DIR + TEST_LIBRARY_DIR);
         ArrayList<String> libraryPaths = new ArrayList<>();
         if (!testLibraryPath.isDirectory()) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -143,7 +121,7 @@ public class JTAFUIViewer extends Stage {
 
         ArrayList<Library> testLibrary = new ArrayList<>();
         for (String libraryPath : libraryPaths) {
-            LibraryParser libraryParser = new LibraryParser(testLibraryPath.getPath()+"\\"+libraryPath);
+            LibraryParser libraryParser = new LibraryParser(testLibraryPath.getPath() + "\\" + libraryPath);
             testLibrary.add(libraryParser.getLibrary());
         }
 
@@ -154,24 +132,12 @@ public class JTAFUIViewer extends Stage {
         this.LIBRARY_TOTAL_WIDTH = jtafLibrary.LIBRARY_TOTAL_WIDTH;
         this.LIBRARY_KEY_WIDTH = jtafLibrary.LIBRARY_KEY_WIDTH;
         this.LIBRARY_DATA_WIDTH = jtafLibrary.LIBRARY_TOTAL_WIDTH;
-        this.LIBRARY_HEADER_SELECTED_COLOR  = jtafLibrary.LIBRARY_HEADER_SELECTED_COLOR;
+        this.LIBRARY_HEADER_SELECTED_COLOR = jtafLibrary.LIBRARY_HEADER_SELECTED_COLOR;
         this.LIBRARY_HEADER_UNSELECTED_COLOR = jtafLibrary.LIBRARY_HEADER_UNSELECTED_COLOR;
         this.LIBRARY_BACKGROUND_COLOR = jtafLibrary.LIBRARY_BACKGROUND_COLOR;
         //add more?
     }
-
-//    public void getLibraryWindows(JTAFUILibrary jtafLibrary, HashMap<String, Stage> totalCommandWindows,
-//                                  HashMap<String, Stage> totalFunctionWindows) {
-//        totalCommandWindows.putAll(jtafLibrary.getCommandWindows());
-//        totalFunctionWindows.putAll(jtafLibrary.getFunctionWindows());
-//    }
-//
-//    public void getLibraryBody(JTAFUILibrary jtafLibrary, HashMap<String, ArrayList<StackPane>> totalLibraryBodyPanes,
-//                               HashMap<String, ArrayList<StackPane>> totalWindowedLibraryBodyPanes) {
-//        totalLibraryBodyPanes.putAll(jtafLibrary.getLibraryBodyPanes());
-//        totalWindowedLibraryBodyPanes.putAll(jtafLibrary.getWindowedLibraryBodyPanes());
-    }
-
+}
 //    public void setLibraryBodyHyperLinks(HashMap<String, ArrayList<StackPane>> bodyPanes,
 //        HashMap<String, Stage> totalCommandWindows, HashMap<String, Stage> totalFunctionWindows) {
 //        //fill out library function bodies

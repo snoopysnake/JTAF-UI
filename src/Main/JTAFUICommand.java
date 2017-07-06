@@ -6,6 +6,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -118,10 +119,10 @@ public class JTAFUICommand {
             createCommandUsagePanes(command, commandGridPane);
         }
         if (command.hasRequiredParameters()) {
-            createParameterPanes("Required Parameters",command.getRequiredParameters(),commandGridPane);
+            createParameterPanes("Required Parameter",command.getRequiredParameters(),commandGridPane);
         }
         if (command.hasOptionalParameters()) {
-            createParameterPanes("Optional Parameters",command.getOptionalParameters(),commandGridPane);
+            createParameterPanes("Optional Parameter",command.getOptionalParameters(),commandGridPane);
         }
         if (command.hasCommandResults()) {
             createParameterPanes("Produces",command.getCommandResults(),commandGridPane);
@@ -177,71 +178,89 @@ public class JTAFUICommand {
     }
 
     private void createParameterPanes(String parameter, ArrayList<Parameter> parameterList, GridPane gridPane) {
-        StackPane paramPane = new StackPane();
-        paramPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-        paramPane.getChildren().add(new Text(parameter));
-        paramPane.setBorder(new Border(new BorderStroke(Color.BLACK,
-                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-        gridPane.add(paramPane, 0, row);
-        StackPane paramPaneInfo = new StackPane();
-        paramPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
-                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-        gridPane.add(paramPaneInfo, 1, row);
-        row++;
-        RowConstraints rowConstraint = new RowConstraints(50);
-        gridPane.getRowConstraints().add(rowConstraint);
-        height+=rowConstraint.getPrefHeight();
+        for (int i = 0; i < parameterList.size(); i++) {
+            StackPane paramStackPane = new StackPane();
+            paramStackPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+            paramStackPane.getChildren().add(new Text(parameter));
+            paramStackPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+            gridPane.add(paramStackPane, 0, row);
 
-        for(int i = 0; i < parameterList.size() * 3; i++) {
-            Text requiredParamKey = new Text("");
-            Text requiredParamData = new Text("");
-            int commandIndex = i/3;
-            if (i % 3 == 0) {
-                requiredParamKey.setText("Name");
-                requiredParamData.setText(parameterList.get(commandIndex).getName());
+            GridPane paramGridPane = new GridPane();
+            ColumnConstraints col1 = new ColumnConstraints();
+            col1.setPrefWidth(100); //TODO
+            ColumnConstraints col2 = new ColumnConstraints();
+            col2.setPrefWidth(LIBRARY_DATA_WIDTH - 100); //TODO
+            paramGridPane.getColumnConstraints().addAll(col1, col2);
+            int paramRow = 0;
+            double paramHeight = 0;
+            for (int j = 0; j < 3; j++) {
+                Text paramKey = new Text("");
+                Text paramData = new Text("");
+                if (j % 3 == 0) {
+                    paramKey.setText("Name");
+                    paramData.setText(parameterList.get(i).getName());
+                }
+                if (j % 3 == 1) {
+                    paramKey.setText("Tag");
+                    paramData.setText(parameterList.get(i).getTag());
+                }
+                if (j % 3 == 2) {
+                    paramKey.setText("Text");
+                    paramData.setWrappingWidth(LIBRARY_DATA_WIDTH - 110); //TODO
+                    paramData.setTextAlignment(TextAlignment.CENTER);
+                    paramData.setText(parameterList.get(i).getText().trim());
+                }
+                StackPane paramChildPane = new StackPane();
+                paramChildPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE_CHILD_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                paramChildPane.getChildren().add(paramKey);
+                paramChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                paramGridPane.add(paramChildPane, 0, paramRow);
+                StackPane paramChildPaneInfo = new StackPane();
+                paramChildPaneInfo.getChildren().add(paramData);
+                paramChildPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
+                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                paramGridPane.add(paramChildPaneInfo, 1, paramRow);
+                paramRow++;
+                double rowHeight = paramChildPaneInfo.getBoundsInParent().getHeight();
+                if (rowHeight < 25)
+                    rowHeight = 25;
+                RowConstraints rowConstraint = new RowConstraints(rowHeight);
+                paramGridPane.getRowConstraints().add(rowConstraint);
+                paramHeight += rowConstraint.getPrefHeight();
             }
-            if (i % 3 == 1) {
-                requiredParamKey.setText("Tag");
-                requiredParamData.setText(parameterList.get(commandIndex).getTag());
-            }
-            if (i % 3 == 2) {
-                requiredParamKey.setText("Text");
-                requiredParamData.setWrappingWidth(LIBRARY_DATA_WIDTH-10);
-                requiredParamData.setTextAlignment(TextAlignment.CENTER);
-                requiredParamData.setText(parameterList.get(commandIndex).getText());
-            }
-            StackPane paramChildPane = new StackPane();
-            paramChildPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE_CHILD_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-            paramChildPane.getChildren().add(requiredParamKey);
-            paramChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
-                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-            gridPane.add(paramChildPane, 0, row);
-            StackPane paramChildPaneInfo = new StackPane();
-            paramChildPaneInfo.getChildren().add(requiredParamData);
-            paramChildPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
-                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-            gridPane.add(paramChildPaneInfo, 1, row);
+            gridPane.add(paramGridPane, 1, row);
             row++;
-            double rowHeight = paramChildPaneInfo.getBoundsInParent().getHeight();
-            if (rowHeight < 25)
-                rowHeight = 25;
-            rowConstraint = new RowConstraints(rowHeight);
+            RowConstraints rowConstraint = new RowConstraints(paramHeight);
             gridPane.getRowConstraints().add(rowConstraint);
-            height+=rowConstraint.getPrefHeight();
+            height += rowConstraint.getPrefHeight();
         }
     }
 
     private Stage createCommandWindow(Command command) {
         Stage windowStage = new Stage();
         VBox windowedVBox = new VBox();
-//        StackPane windowedCommandHeader = createCategoryHeader(command.getCommandName(),25, CATEGORY_HEADER_COLOR);
+        StackPane windowedCommandHeader = createWindowedHeader(command.getCommandName(),25, CATEGORY_HEADER_COLOR);
         GridPane windowedCommand = createCommandGridPane(command);
         windowedCommand.setVisible(true);
         windowedCommand.setManaged(true);
-//        windowedVBox.getChildren().addAll(windowedCommandHeader, windowedCommand);
-        windowedVBox.getChildren().addAll(windowedCommand);
+        windowedVBox.getChildren().addAll(windowedCommandHeader, windowedCommand);
         windowStage.setScene(new Scene(windowedVBox,LIBRARY_TOTAL_WIDTH,windowedVBox.getPrefHeight()));
         return windowStage;
+    }
+
+    private StackPane createWindowedHeader(String name, int fontSize, Color color) {
+        StackPane categoryHeader = new StackPane();
+
+        Label categoryHeaderLabel = new Label(name);
+        categoryHeaderLabel.setTextFill(Color.WHITE);
+        categoryHeaderLabel.setPadding(new Insets(7));
+        categoryHeaderLabel.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY))); //make color coded
+        categoryHeaderLabel.setFont(new Font(FINRA_FONT, fontSize));
+        categoryHeaderLabel.setPrefWidth(LIBRARY_TOTAL_WIDTH);
+        categoryHeader.getChildren().add(categoryHeaderLabel);
+        return categoryHeader;
     }
 
     private void setCommandMouseEffects(Command command) {

@@ -169,7 +169,6 @@ public class JTAFUIHeader {
                 if (searchedName.endsWith(".xml")) {
                     searchedName = searchedName.substring(0, searchedName.length()-4);
                 }
-                //update header and directory
                 for (int i = 0; i < testLibraryUI.size(); i++) {
                     JTAFUILibrary jtafuiLibrary = testLibraryUI.get(i);
                     ArrayList<JTAFUICommand> uiCommands = jtafuiLibrary.getUICommands();
@@ -233,14 +232,25 @@ public class JTAFUIHeader {
         double totalHeight = 44; //height of library header
         double resultHeight = 44;
         for (int i = 0; i < jtafuiLibrary.getUICommands().size(); i++) {
-            totalHeight += 42; //height of each command header
+            totalHeight += 36; //height of each command header
             JTAFUICommand uiCommand = jtafuiLibrary.getUICommands().get(i);
-            if (uiCommand.getCommandName().equals(foundCommand.getCommandName())) {
-                resultHeight = totalHeight;
-            }
             if (uiCommand.getCommandGridPane().isVisible() &&
                     uiCommand.getCommandGridPane().isManaged()) {
                 totalHeight += uiCommand.getHeight();
+            }
+            if (uiCommand.getCommandName().equals(foundCommand.getCommandName())) {
+                resultHeight = totalHeight;
+            }
+        }
+        for (int i = 0; i < jtafuiLibrary.getUIFunctions().size(); i++) {
+            if (i == 0)
+                totalHeight += 44; //height of library header
+
+            totalHeight += 36; //height of each function header
+            JTAFUIFunction uiFunction = jtafuiLibrary.getUIFunctions().get(i);
+            if (uiFunction.getFunctionGridPane().isVisible() &&
+                    uiFunction.getFunctionGridPane().isManaged()) {
+                totalHeight += uiFunction.getHeight();
             }
         }
         jtafuiLibrary.getLibraryPane().setVvalue(resultHeight / totalHeight);
@@ -260,15 +270,26 @@ public class JTAFUIHeader {
         //gets height of all functions
         double totalHeight = 44; //height of library header
         double resultHeight = 44;
-        for (int i = 0; i < jtafuiLibrary.getUIFunctions().size(); i++) {
-            totalHeight += 42; //height of each function header
-            JTAFUIFunction uiFunction = jtafuiLibrary.getUIFunctions().get(i);
-            if (uiFunction.getFunctionName().equals(foundFunction.getFunctionName())) {
-                resultHeight = totalHeight;
+        for (int i = 0; i < jtafuiLibrary.getUICommands().size(); i++) {
+            totalHeight += 36; //height of each command header
+            JTAFUICommand uiCommand = jtafuiLibrary.getUICommands().get(i);
+            if (uiCommand.getCommandGridPane().isVisible() &&
+                    uiCommand.getCommandGridPane().isManaged()) {
+                totalHeight += uiCommand.getHeight();
             }
+        }
+        for (int i = 0; i < jtafuiLibrary.getUIFunctions().size(); i++) {
+            if (i == 0)
+                totalHeight += 44; //height of library header
+
+            totalHeight += 36; //height of each function header
+            JTAFUIFunction uiFunction = jtafuiLibrary.getUIFunctions().get(i);
             if (uiFunction.getFunctionGridPane().isVisible() &&
                     uiFunction.getFunctionGridPane().isManaged()) {
                 totalHeight += uiFunction.getHeight();
+            }
+            if (uiFunction.getFunctionName().equals(foundFunction.getFunctionName())) {
+                resultHeight = totalHeight;
             }
         }
         jtafuiLibrary.getLibraryPane().setVvalue(resultHeight / totalHeight);

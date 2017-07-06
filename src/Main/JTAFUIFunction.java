@@ -7,6 +7,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -40,6 +42,7 @@ public class JTAFUIFunction {
     private StackPane functionHeader;
     private GridPane functionGridPane;
     private Stage functionWindow;
+    private ArrayList<StackPane> functionBodyPanes = new ArrayList<>();
     private int row = 0;
     private double height = 0;
 
@@ -65,6 +68,10 @@ public class JTAFUIFunction {
 
     public Stage getFunctionWindow() {
         return this.functionWindow;
+    }
+
+    public ArrayList<StackPane> getFunctionBodyPanes() {
+        return this.functionBodyPanes;
     }
 
     public double getHeight() {
@@ -119,10 +126,10 @@ public class JTAFUIFunction {
             createFunctionUsagePanes(function, functionGridPane);
         }
         if (function.hasRequiredParameters()) {
-            createParameterPanes("Required Parameters", function.getRequiredParameters(), functionGridPane);
+            createParameterPanes("Required Parameter", function.getRequiredParameters(), functionGridPane);
         }
         if (function.hasOptionalParameters()) {
-            createParameterPanes("Optional Parameters", function.getOptionalParameters(), functionGridPane);
+            createParameterPanes("Optional Parameter", function.getOptionalParameters(), functionGridPane);
         }
         if (function.hasFunctionBody()) {
             createFunctionBodyPanes(function, functionGridPane);
@@ -163,117 +170,142 @@ public class JTAFUIFunction {
     }
 
     public void createFunctionBodyPanes(Function function, GridPane functionGridPane) {
-        ArrayList<StackPane> bodyPanes = new ArrayList<>();
-        StackPane functionBodyPane = new StackPane();
-        functionBodyPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-        functionBodyPane.getChildren().add(new Text("Body"));
-        functionBodyPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+        StackPane functionBodyStackPane = new StackPane();
+        functionBodyStackPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+        functionBodyStackPane.getChildren().add(new Text("Body"));
+        functionBodyStackPane.setBorder(new Border(new BorderStroke(Color.BLACK,
                 BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-        bodyPanes.add(functionBodyPane); //add pane 1
-        functionGridPane.add(functionBodyPane, 0, row);
-        StackPane functionBodyPaneInfo = new StackPane();
-        functionBodyPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
-                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-        bodyPanes.add(functionBodyPaneInfo); //add pane 2
-        functionGridPane.add(functionBodyPaneInfo, 1, row);
+        functionGridPane.add(functionBodyStackPane, 0, row);
+
+        GridPane functionBodyGridPane = new GridPane();
+//        functionBodyGridPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+//                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPrefWidth(100); //TODO
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPrefWidth(LIBRARY_DATA_WIDTH-100);
+        functionBodyGridPane.getColumnConstraints().addAll(col1, col2);
+
+        int bodyRow = 0;
+        double bodyHeight = 0;
+        for (int i = 0; i < function.getFunctionBody().size(); i++) {
+            String functionBodyChildName = function.getFunctionBody().get(i);
+            StackPane functionBodyTypePane = new StackPane(); //empty
+            functionBodyTypePane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE_CHILD_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+            functionBodyTypePane.setBorder(new Border(new BorderStroke(Color.BLACK,
+                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+            functionBodyGridPane.add(functionBodyTypePane, 0, bodyRow);
+            functionBodyPanes.add(functionBodyTypePane);
+            StackPane functionBodyHyperLinkPane = new StackPane();
+//            Text functionBodyChildNameText = new Text(functionBodyChildName);
+//            functionBodyChildNameText.setWrappingWidth(LIBRARY_DATA_WIDTH-50);
+//            functionBodyChildNameText.setTextAlignment(TextAlignment.CENTER);
+            Hyperlink functionBodyHyperLink = new Hyperlink(functionBodyChildName);
+            functionBodyHyperLink.setWrapText(true);
+            functionBodyHyperLinkPane.getChildren().add(functionBodyHyperLink);
+            functionBodyHyperLinkPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+            functionBodyGridPane.add(functionBodyHyperLinkPane, 1, bodyRow);
+            functionBodyPanes.add(functionBodyHyperLinkPane);
+            bodyRow++;
+            double rowHeight = functionBodyHyperLinkPane.getBoundsInParent().getHeight();
+            if (rowHeight < 25)
+                rowHeight = 25;
+            RowConstraints rowConstraint = new RowConstraints(rowHeight);
+            functionBodyGridPane.getRowConstraints().add(rowConstraint);
+            bodyHeight += rowConstraint.getPrefHeight();
+        }
+        functionGridPane.add(functionBodyGridPane, 1, row);
         row++;
-        RowConstraints rowConstraint = new RowConstraints(50);
+        RowConstraints rowConstraint = new RowConstraints(bodyHeight);
         functionGridPane.getRowConstraints().add(rowConstraint);
         height += rowConstraint.getPrefHeight();
-
-        for (int i = 0; i < function.getFunctionBody().size(); i++) {
-            String functionBodyCommandName = function.getFunctionBody().get(i);
-            StackPane functionBodyChildPane = new StackPane();
-            functionBodyChildPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE_CHILD_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-            Text functionBodyCommandNameText = new Text(functionBodyCommandName);
-            functionBodyCommandNameText.setWrappingWidth(LIBRARY_KEY_WIDTH-10);
-            functionBodyCommandNameText.setTextAlignment(TextAlignment.CENTER);
-            functionBodyChildPane.getChildren().add(functionBodyCommandNameText);
-            functionBodyChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
-                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-            bodyPanes.add(functionBodyChildPane);
-            functionGridPane.add(functionBodyChildPane, 0, row);
-            StackPane functionBodyChildPaneInfo = new StackPane();
-            functionBodyChildPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
-                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-            bodyPanes.add(functionBodyChildPaneInfo);
-            functionGridPane.add(functionBodyChildPaneInfo, 1, row);
-            row++;
-            double rowHeight = functionBodyChildPane.getBoundsInParent().getHeight();
-            if (rowHeight < 30)
-                rowHeight = 30;
-            rowConstraint = new RowConstraints(rowHeight);
-            functionGridPane.getRowConstraints().add(rowConstraint);
-            height += rowConstraint.getPrefHeight();
-        }
     }
 
     public void createParameterPanes(String parameter, ArrayList<Parameter> parameterList, GridPane gridPane) {
-        StackPane paramPane = new StackPane();
-        paramPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-        paramPane.getChildren().add(new Text(parameter));
-        paramPane.setBorder(new Border(new BorderStroke(Color.BLACK,
-                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-        gridPane.add(paramPane, 0, row);
-        StackPane paramPaneInfo = new StackPane();
-        paramPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
-                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-        gridPane.add(paramPaneInfo, 1, row);
-        row++;
-        RowConstraints rowConstraint = new RowConstraints(50);
-        gridPane.getRowConstraints().add(rowConstraint);
-        height+=rowConstraint.getPrefHeight();
+        for (int i = 0; i < parameterList.size(); i++) {
+            StackPane paramStackPane = new StackPane();
+            paramStackPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+            paramStackPane.getChildren().add(new Text(parameter));
+            paramStackPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+            gridPane.add(paramStackPane, 0, row);
 
-        for(int i = 0; i < parameterList.size() * 3; i++) {
-            Text requiredParamKey = new Text("");
-            Text requiredParamData = new Text("");
-            int commandIndex = i/3;
-            if (i % 3 == 0) {
-                requiredParamKey.setText("Name");
-                requiredParamData.setText(parameterList.get(commandIndex).getName());
+            GridPane paramGridPane = new GridPane();
+            ColumnConstraints col1 = new ColumnConstraints();
+            col1.setPrefWidth(100); //TODO
+            ColumnConstraints col2 = new ColumnConstraints();
+            col2.setPrefWidth(LIBRARY_DATA_WIDTH - 100); //TODO
+            paramGridPane.getColumnConstraints().addAll(col1, col2);
+            int paramRow = 0;
+            double paramHeight = 0;
+            for (int j = 0; j < 3; j++) {
+                Text paramKey = new Text("");
+                Text paramData = new Text("");
+                if (j % 3 == 0) {
+                    paramKey.setText("Name");
+                    paramData.setText(parameterList.get(i).getName());
+                }
+                if (j % 3 == 1) {
+                    paramKey.setText("Tag");
+                    paramData.setText(parameterList.get(i).getTag());
+                }
+                if (j % 3 == 2) {
+                    paramKey.setText("Text");
+                    paramData.setWrappingWidth(LIBRARY_DATA_WIDTH - 110); //TODO
+                    paramData.setTextAlignment(TextAlignment.CENTER);
+                    paramData.setText(parameterList.get(i).getText().trim());
+                }
+                StackPane paramChildPane = new StackPane();
+                paramChildPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE_CHILD_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
+                paramChildPane.getChildren().add(paramKey);
+                paramChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
+                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                paramGridPane.add(paramChildPane, 0, paramRow);
+                StackPane paramChildPaneInfo = new StackPane();
+                paramChildPaneInfo.getChildren().add(paramData);
+                paramChildPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
+                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+                paramGridPane.add(paramChildPaneInfo, 1, paramRow);
+                paramRow++;
+                double rowHeight = paramChildPaneInfo.getBoundsInParent().getHeight();
+                if (rowHeight < 25)
+                    rowHeight = 25;
+                RowConstraints rowConstraint = new RowConstraints(rowHeight);
+                paramGridPane.getRowConstraints().add(rowConstraint);
+                paramHeight += rowConstraint.getPrefHeight();
             }
-            if (i % 3 == 1) {
-                requiredParamKey.setText("Tag");
-                requiredParamData.setText(parameterList.get(commandIndex).getTag());
-            }
-            if (i % 3 == 2) {
-                requiredParamKey.setText("Text");
-                requiredParamData.setWrappingWidth(LIBRARY_DATA_WIDTH-10);
-                requiredParamData.setTextAlignment(TextAlignment.CENTER);
-                requiredParamData.setText(parameterList.get(commandIndex).getText());
-            }
-            StackPane paramChildPane = new StackPane();
-            paramChildPane.setBackground(new Background(new BackgroundFill(LIBRARY_ATTRIBUTE_CHILD_COLOR, CornerRadii.EMPTY, Insets.EMPTY)));
-            paramChildPane.getChildren().add(requiredParamKey);
-            paramChildPane.setBorder(new Border(new BorderStroke(Color.BLACK,
-                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-            gridPane.add(paramChildPane, 0, row);
-            StackPane paramChildPaneInfo = new StackPane();
-            paramChildPaneInfo.getChildren().add(requiredParamData);
-            paramChildPaneInfo.setBorder(new Border(new BorderStroke(Color.BLACK,
-                    BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-            gridPane.add(paramChildPaneInfo, 1, row);
+            gridPane.add(paramGridPane, 1, row);
             row++;
-            double rowHeight = paramChildPaneInfo.getBoundsInParent().getHeight();
-            if (rowHeight < 25)
-                rowHeight = 25;
-            rowConstraint = new RowConstraints(rowHeight);
+            RowConstraints rowConstraint = new RowConstraints(paramHeight);
             gridPane.getRowConstraints().add(rowConstraint);
-            height+=rowConstraint.getPrefHeight();
+            height += rowConstraint.getPrefHeight();
         }
     }
 
     public Stage createFunctionWindow(Function function) {
         Stage windowStage = new Stage();
         VBox windowedVBox = new VBox();
-//        StackPane windowedFunctionHeader = createCategoryHeader(function.getFunctionName(),25, LIBRARY_HEADER_SELECTED_COLOR);
+        StackPane windowedFunctionHeader = createWindowedHeader(function.getFunctionName(),25, LIBRARY_HEADER_SELECTED_COLOR);
         GridPane windowedFunction = createFunctionGridPane(function);
         windowedFunction.setVisible(true);
         windowedFunction.setManaged(true);
-//        windowedVBox.getChildren().addAll(windowedFunctionHeader, windowedFunction);
-        windowedVBox.getChildren().addAll(windowedFunction);
+        windowedVBox.getChildren().addAll(windowedFunctionHeader, windowedFunction);
         windowStage.setScene(new Scene(windowedVBox,LIBRARY_TOTAL_WIDTH,windowedVBox.getPrefHeight()));
         return windowStage;
+    }
+
+    private StackPane createWindowedHeader(String name, int fontSize, Color color) {
+        StackPane categoryHeader = new StackPane();
+
+        Label categoryHeaderLabel = new Label(name);
+        categoryHeaderLabel.setTextFill(Color.WHITE);
+        categoryHeaderLabel.setPadding(new Insets(7));
+        categoryHeaderLabel.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY))); //make color coded
+        categoryHeaderLabel.setFont(new Font(FINRA_FONT, fontSize));
+        categoryHeaderLabel.setPrefWidth(LIBRARY_TOTAL_WIDTH);
+        categoryHeader.getChildren().add(categoryHeaderLabel);
+        return categoryHeader;
     }
 
     public void setFunctionMouseEffects(Function function) {

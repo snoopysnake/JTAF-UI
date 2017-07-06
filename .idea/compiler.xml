@@ -23,7 +23,6 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
         <module name="jtaf-xcore" />
-        <module name="xcore-testproject" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/JTAF-UI.iml" filepath="$PROJECT_DIR$/JTAF-UI.iml" />
       <module fileurl="file://$PROJECT_DIR$/../JTAF-XCore/jtaf-xcore.iml" filepath="$PROJECT_DIR$/../JTAF-XCore/jtaf-xcore.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../JTAF-XCore/seedProject/xcore-testproject.iml" filepath="$PROJECT_DIR$/../JTAF-XCore/seedProject/xcore-testproject.iml" />
     </modules>
   </component>
 </project>
