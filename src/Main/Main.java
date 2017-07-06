@@ -4,21 +4,13 @@ import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Side;
-import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -93,12 +85,8 @@ public class Main extends Application {
                 PROJECT_DIR = selectedDirectory.getPath();
                 if (FindExistingProject.search(PROJECT_DIR)) {
                     try {
-                        new JTAFViewer(PROJECT_DIR, TEST_LIBRARY_DIR);
-                    } catch (ParserConfigurationException e) {
-                        e.printStackTrace();
-                    } catch (SAXException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
+                        new JTAFUIViewer(PROJECT_DIR, TEST_LIBRARY_DIR);
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                     primaryStage.hide();

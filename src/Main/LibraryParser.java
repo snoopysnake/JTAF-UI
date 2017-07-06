@@ -2,6 +2,7 @@ package Main;
 
 import JTAF.Command;
 import JTAF.Function;
+import JTAF.Library;
 import JTAF.Parameter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
  */
 public class LibraryParser {
     public String libraryName;
+    private Library library;
     private ArrayList<Command> commands = new ArrayList<>();
     private ArrayList<Function> functions = new ArrayList<>();
 
@@ -58,6 +60,8 @@ public class LibraryParser {
                 }
             }
         }
+
+        setLibrary(libraryName, commands, functions);
     }
 
     public String getLibraryName() {
@@ -200,29 +204,39 @@ public class LibraryParser {
         return functions;
     }
 
-    //allCommands = whole test library
-    public void validateFunctions(ArrayList<Command> allCommands) {
-        ArrayList<Parameter> newRequiredParameters = new ArrayList<>();
-        ArrayList<Parameter> newOptionalParameters = new ArrayList<>();
-        ArrayList<String> allCommandNames = new ArrayList<>();
-
-        //gets every command name
-        for (Command command : allCommands) {
-            String commandName = command.getCommandName();
-            allCommandNames.add(commandName);
-        }
-
-        for (Function function : functions) {
-            ArrayList<String> functionBody = function.getFunctionBody();
-            //validate if body contains commands
-            for (String functionBodyCommandName : functionBody) {
-                if (!allCommandNames.contains(functionBodyCommandName))
-                    System.out.println("Does not contain "+functionBodyCommandName+"!");
-                else {
-                    //replace required+optional parameters
-                }
-            }
-        }
+    public void setLibrary(String libraryName, ArrayList<Command> commands, ArrayList<Function> functions) {
+        library = new Library(libraryName);
+        library.setCommands(commands);
+        library.setFunctions(functions);
     }
+
+    public Library getLibrary() {
+        return this.library;
+    }
+
+    //allCommands = whole test library
+//    public void validateFunctions(ArrayList<Command> allCommands) {
+//        ArrayList<Parameter> newRequiredParameters = new ArrayList<>();
+//        ArrayList<Parameter> newOptionalParameters = new ArrayList<>();
+//        ArrayList<String> allCommandNames = new ArrayList<>();
+//
+//        //gets every command name
+//        for (Command command : allCommands) {
+//            String commandName = command.getCommandName();
+//            allCommandNames.add(commandName);
+//        }
+//
+//        for (Function function : functions) {
+//            ArrayList<String> functionBody = function.getFunctionBody();
+//            //validate if body contains commands
+//            for (String functionBodyCommandName : functionBody) {
+//                if (!allCommandNames.contains(functionBodyCommandName))
+//                    System.out.println("Does not contain "+functionBodyCommandName+"!");
+//                else {
+//                    //replace required+optional parameters
+//                }
+//            }
+//        }
+//    }
 
 }
